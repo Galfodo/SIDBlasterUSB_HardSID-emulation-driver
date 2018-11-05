@@ -1,0 +1,23 @@
+EXPORTS
+    GetHardSIDCount @1
+    HardSID_Delay @2
+    HardSID_Devices @3
+    HardSID_Filter @4
+    HardSID_Flush @5
+    HardSID_Lock @6
+    HardSID_Mute @7
+    HardSID_MuteAll @8
+    HardSID_Read @9
+    HardSID_Reset @10
+    HardSID_SoftFlush @11
+    HardSID_Sync @12
+    HardSID_Version @13
+    HardSID_Write @14
+    InitHardSID_Mapper @15
+    MuteHardSID_Line @16
+    ReadFromHardSID @17
+    WriteToHardSID @18
+    HardSID_Reset2 @19
+    HardSID_Unlock @20
+    HardSID_Try_Write @21
+    HardSID_ExternalTiming @22
