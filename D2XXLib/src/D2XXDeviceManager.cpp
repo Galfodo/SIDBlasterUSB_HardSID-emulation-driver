@@ -19,18 +19,17 @@
 
 namespace D2XXLib
 {
-  BOOL D2XXManager::IsValidDeiviceInfo(FT_DEVICE_LIST_INFO_NODE *dev_info)
-  {
-    assert (dev_info);
-    if (strlen(dev_info->SerialNumber)) {
-                  return TRUE;
-      //if (dev_info->Flags & FT_FLAGS_OPENED)
-      //  return TRUE;
-      //else if (dev_info->LocId)
-      //  return TRUE;
-    }
-    return FALSE;
-  }
+	BOOL D2XXManager::IsValidDeiviceInfo(FT_DEVICE_LIST_INFO_NODE *dev_info)
+	{
+		//*assert (dev_info);
+		//Check if the FTDI is a real Sidblaster
+		if ((std::string(dev_info->Description).compare("SIDBlaster/USB"))) {
+			return FALSE;
+		}
+		else {
+			return TRUE;
+		}
+	}
 
   DWORD D2XXManager::CreateDeviceList(D2XXDevicesList *list)
   {
@@ -55,7 +54,7 @@ namespace D2XXLib
                 device = new D2XXDevice(ft_info);
                 list->push_back(device);
               }
-              else all_dev_valid = FALSE;
+              //else all_dev_valid = FALSE;
             }
           }
           delete[] ft_info_list;
