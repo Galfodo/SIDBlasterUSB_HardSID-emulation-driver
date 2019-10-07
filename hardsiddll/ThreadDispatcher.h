@@ -3,8 +3,10 @@
 
 #include "SIDBlasterInterface.h"
 #include "CommandDispatcher.h"
-#include "ThreadObject.h"
 #include "DriverDefs.h"
+
+#include <thread>
+#include <mutex>
 
 namespace SIDBlaster {
 
@@ -20,7 +22,9 @@ public:
   virtual int             DeviceCount() SIDB_OVERRIDE;
 
   ThreadCommandReceiver*  m_Receiver;
-  ThreadObject            m_SIDWriteThread;
+  std::thread             m_SIDWriteThread;
+  std::mutex              m_SIDWriteThreadMutex;
+  bool                    m_AbortSIDWriteThread;
 };
 
 }

@@ -10,6 +10,7 @@
 #include "SIDBlasterInterfaceImpl.h"
 
 #include <cassert>
+#include <chrono>
 
 namespace SIDBlaster {
 
@@ -21,7 +22,6 @@ CommandReceiver::CommandReceiver() : m_AdaptiveWriteBuffer(false) {
 }
 
 CommandReceiver::~CommandReceiver() {
-  m_WaitEvent.DeAllocate();
 }
 
 void
@@ -32,7 +32,6 @@ CommandReceiver::Initialize() {
   m_CycleScale = m_Frq / PAL_CLOCK;
   m_InvertedCycleScale = PAL_CLOCK / m_Frq;
   m_AccumulatedCycles = 0;
-  m_WaitEvent.Allocate("Wait...");
   m_IsReadResultReady = false;
   m_ReadResult = 0;
   for (int i = 0; i < SIDBlasterEnumerator::Instance()->DeviceCount(); ++i) {
@@ -64,7 +63,12 @@ int CommandReceiver::WaitForCycle(int cycle) {
     for (int i = 0; i < (int)m_Devices.size(); ++i) {
       m_Devices[i]->SoftFlush();
     }
-    m_WaitEvent.Wait(msec);
+    {
+      std::unique_lock<std::mutex> 
+        lockguard(m_WaitMutex);
+
+      m_WaitEvent.wait_for(lockguard, std::chrono::milliseconds(msec));
+    }
   }
   while (tick < waitForTick) {
     QueryPerformanceCounter((LARGE_INTEGER*)&tick);

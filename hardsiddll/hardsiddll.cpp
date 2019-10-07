@@ -8,8 +8,10 @@
 #include <string.h>
 #include <windows.h>
 
+#include <thread>
+
 #include "CommandDispatcher.h"
-#include "ThreadObject.h"
+
 
 using namespace SIDBlaster;
 
@@ -49,7 +51,7 @@ void DLLEXPORT HardSID_Delay(Uint8 DeviceID, Uint16 Cycles) {
 void DLLEXPORT HardSID_Write(Uint8 DeviceID, int Cycles, Uint8 SID_reg, Uint8 Data) {
   CommandParams cmd(DeviceID, CommandParams::Write, SID_reg, Data, Cycles, false);
   while (g_CommandDispatcher->SendCommand(cmd) != 0) {
-    ThreadObject::Yield();
+    std::this_thread::yield();
   }
   //// TEST CODE, REMOVE!
   //if (Cycles % 20000 < 10) {

@@ -9,9 +9,9 @@
 
 #include "CommandDispatcher.h"
 #include "ILogger.h"
-#include "EventObject.h"
 
 #include <vector>
+#include <condition_variable>
 
 namespace SIDBlaster {
 
@@ -64,7 +64,9 @@ public:
 
   bool                  m_AdaptiveWriteBuffer;
 
-  EventObject           m_WaitEvent;
+  std::condition_variable 
+                        m_WaitEvent;
+  std::mutex            m_WaitMutex;
 
   int                   m_TimingSamples[TIMING_SAMPLES];
   int                   m_TimingSampleIndex;

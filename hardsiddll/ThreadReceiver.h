@@ -3,11 +3,12 @@
 
 #include "SIDBlasterInterface.h"
 #include "CommandDispatcher.h"
-#include "ThreadObject.h"
 #include "CommandReceiver.h"
-#include "MutexObject.h"
-#include "EventObject.h"
 #include "DriverDefs.h"
+
+#include <mutex>
+#include <condition_variable>
+#include <thread>
 
 namespace SIDBlaster {
 
@@ -19,14 +20,19 @@ public:
 
   ThreadCommandReceiver();
 
-  MutexObject
-    m_Mutex;
-
-  EventObject
 #ifdef WAIT_FOR_COMMAND_COMPLETION
-    m_CommandsCompletedEvent,
+  std::condition_variable
+    m_CommandsCompletedEvent;
+
+  std::mutex
+    m_CommandsCompletedMutex;
 #endif
+
+  std::condition_variable
     m_CommandPendingEvent;
+
+  std::mutex
+    m_CommandPendingMutex;
 
   CommandParams
     m_CommandBuffer[BUFFERSIZE];
