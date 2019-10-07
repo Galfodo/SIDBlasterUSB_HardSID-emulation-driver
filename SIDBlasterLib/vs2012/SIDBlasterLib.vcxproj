@@ -155,9 +155,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\util\EventObject.cpp" />
-    <ClCompile Include="..\..\util\MutexObject.cpp" />
-    <ClCompile Include="..\..\util\ThreadObject.cpp" />
     <ClCompile Include="..\CommandReceiver.cpp" />
     <ClCompile Include="..\DebugSIDBlasterInterface.cpp" />
     <ClCompile Include="..\SIDBlasterInterface.cpp" />
@@ -165,9 +162,6 @@
     <ClCompile Include="..\SIDBlasterInterfaceImpl.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\util\EventObject.h" />
-    <ClInclude Include="..\..\util\MutexObject.h" />
-    <ClInclude Include="..\..\util\ThreadObject.h" />
     <ClInclude Include="..\CommandReceiver.h" />
     <ClInclude Include="..\DebugSIDBlasterInterface.h" />
     <ClInclude Include="..\ILogger.h" />

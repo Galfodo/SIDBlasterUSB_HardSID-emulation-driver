@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="util">
-      <UniqueIdentifier>{f4a0353a-a780-4e91-a96d-d45c0f36fa55}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\SIDBlasterInterface.cpp">
@@ -32,15 +29,6 @@
     </ClCompile>
     <ClCompile Include="..\SIDBlasterInterfaceImpl.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\util\EventObject.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\util\MutexObject.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\util\ThreadObject.cpp">
-      <Filter>util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -61,15 +49,6 @@
     </ClInclude>
     <ClInclude Include="..\ILogger.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\util\EventObject.h">
-      <Filter>util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\util\ThreadObject.h">
-      <Filter>util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\util\MutexObject.h">
-      <Filter>util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
