@@ -20,6 +20,11 @@ namespace SIDBlaster {
 static int s_DeviceCount;
 
 static void
+ThreadFunction0() {
+  std::this_thread::sleep_for(std::chrono::seconds(10));
+}
+
+static void
 ThreadFunction(ThreadCommandReceiver* receiver, bool* do_abort) {
   s_DeviceCount = receiver->DeviceCount();
   for (int i = 0; i < s_DeviceCount; ++i) {
@@ -57,11 +62,12 @@ ThreadFunction(ThreadCommandReceiver* receiver, bool* do_abort) {
   receiver->ExecuteCommand(closecommand);
 }
 
-ThreadDispatcher::ThreadDispatcher() : m_Receiver(NULL) {
+ThreadDispatcher::ThreadDispatcher() : m_Receiver(NULL), m_IsInitialized(false) {
 }
 
 int
 ThreadDispatcher::SendCommand(CommandParams const& cmd) {
+  EnsureInitialized();
   int retval = 0;
   {
     while (!m_SIDWriteThread.joinable()) {
@@ -124,23 +130,33 @@ ThreadDispatcher::SendCommand(CommandParams const& cmd) {
 }
 
 void ThreadDispatcher::Initialize() {
+  m_IsInitialized = false;
+}
+
+void ThreadDispatcher::EnsureInitialized() {
+  if (!m_IsInitialized) {
 #ifdef ENABLE_ATTACH_DEBUGGER
-  MessageBox(0, "Attach debugger now!", "hardsid.dll", MB_OK);
+    MessageBox(0, "Attach debugger now!", "hardsid.dll", MB_OK);
 #endif
-  assert(m_Receiver == NULL);
-  m_Receiver = new ThreadCommandReceiver();
-  s_DeviceCount = 0;
-  m_AbortSIDWriteThread = false;
-  m_Receiver->Initialize();
-  m_SIDWriteThread = std::thread(ThreadFunction, m_Receiver, &m_AbortSIDWriteThread);
+    assert(m_Receiver == NULL);
+    m_Receiver = new ThreadCommandReceiver();
+    s_DeviceCount = 0;
+    m_AbortSIDWriteThread = false;
+    m_Receiver->Initialize();
+    m_SIDWriteThread = std::thread(ThreadFunction, m_Receiver, &m_AbortSIDWriteThread);
+    m_IsInitialized = true;
+  }
 }
 
 void ThreadDispatcher::Uninitialize() {
-  m_AbortSIDWriteThread = true;
-  m_SIDWriteThread.join();
-  m_Receiver->Uninitialize();
-  delete m_Receiver;
-  m_Receiver = NULL;
+  if (m_IsInitialized) {
+    m_AbortSIDWriteThread = true;
+    m_SIDWriteThread.join();
+    m_Receiver->Uninitialize();
+    delete m_Receiver;
+    m_Receiver = NULL;
+    m_IsInitialized = false;
+  }
 }
 
 bool ThreadDispatcher::IsAsync() {
@@ -148,6 +164,7 @@ bool ThreadDispatcher::IsAsync() {
 }
 
 int ThreadDispatcher::DeviceCount() {
+  EnsureInitialized();
   while (!m_SIDWriteThread.joinable()) {
     std::this_thread::yield();
   }

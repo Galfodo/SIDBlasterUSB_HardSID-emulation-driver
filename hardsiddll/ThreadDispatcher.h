@@ -21,10 +21,13 @@ public:
   virtual bool            IsAsync() SIDB_OVERRIDE;
   virtual int             DeviceCount() SIDB_OVERRIDE;
 
+  void                    EnsureInitialized();
+
   ThreadCommandReceiver*  m_Receiver;
   std::thread             m_SIDWriteThread;
   std::mutex              m_SIDWriteThreadMutex;
   bool                    m_AbortSIDWriteThread;
+  bool                    m_IsInitialized;
 };
 
 }
