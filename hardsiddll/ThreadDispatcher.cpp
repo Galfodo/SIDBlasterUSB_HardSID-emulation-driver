@@ -62,7 +62,7 @@ ThreadFunction(ThreadCommandReceiver* receiver, bool* do_abort) {
   receiver->ExecuteCommand(closecommand);
 }
 
-ThreadDispatcher::ThreadDispatcher() : m_Receiver(NULL), m_IsInitialized(false) {
+ThreadDispatcher::ThreadDispatcher() : m_Receiver(NULL), m_IsInitialized(false), m_AbortSIDWriteThread(false) {
 }
 
 int
