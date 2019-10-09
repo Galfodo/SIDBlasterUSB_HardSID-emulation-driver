@@ -17,6 +17,7 @@
 
 #include <cassert>
 #include <chrono>
+#include <thread>
 
 namespace SIDBlaster {
 
@@ -67,12 +68,7 @@ int CommandReceiver::WaitForCycle(int cycle) {
     for (int i = 0; i < (int)m_Devices.size(); ++i) {
       m_Devices[i]->SoftFlush();
     }
-    {
-      std::unique_lock<std::mutex> 
-        lockguard(m_WaitMutex);
-
-      m_WaitEvent.wait_for(lockguard, std::chrono::milliseconds(wait_msec.count()));
-    }
+    std::this_thread::sleep_for(wait_msec);
   }
   while (now < target_time) {
     now = std::chrono::high_resolution_clock::now();

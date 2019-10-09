@@ -5,7 +5,6 @@
 #include "ILogger.h"
 
 #include <vector>
-#include <condition_variable>
 #include <chrono>
 
 namespace SIDBlaster {
@@ -61,10 +60,6 @@ public:
   int64                 m_AccumulatedCycles;
 
   bool                  m_AdaptiveWriteBuffer;
-
-  std::condition_variable 
-                        m_WaitEvent;
-  std::mutex            m_WaitMutex;
 
   int                   m_TimingSamples[TIMING_SAMPLES];
   int                   m_TimingSampleIndex;
