@@ -108,8 +108,10 @@
       <ModuleDefinitionFile>..\hardsid.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>md $(SolutionDir)..\build 2&gt;NUL
+md $(SolutionDir)..\build\$(PlatformShortName) 2&gt;NUL
+copy $(TargetPath) $(SolutionDir)..\build\$(PlatformShortName)
+copy $(TargetPath) C:\projects\SIDBlaster\SIDBlasterTest\sidplay2\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -129,8 +131,10 @@
       <ModuleDefinitionFile>..\hardsid.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>md $(SolutionDir)..\build 2&gt;NUL
+md $(SolutionDir)..\build\$(PlatformShortName) 2&gt;NUL
+copy $(TargetPath) $(SolutionDir)..\build\$(PlatformShortName)
+copy $(TargetPath) C:\projects\SIDBlaster\SIDBlasterTest\sidplay2\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -154,8 +158,10 @@
       <ModuleDefinitionFile>..\hardsid.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>md $(SolutionDir)..\build 2&gt;NUL
+md $(SolutionDir)..\build\$(PlatformShortName) 2&gt;NUL
+copy $(TargetPath) $(SolutionDir)..\build\$(PlatformShortName)
+copy $(TargetPath) C:\projects\SIDBlaster\SIDBlasterTest\sidplay2\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -179,8 +185,10 @@
       <ModuleDefinitionFile>..\hardsid.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>md $(SolutionDir)..\build 2&gt;NUL
+md $(SolutionDir)..\build\$(PlatformShortName) 2&gt;NUL
+copy $(TargetPath) $(SolutionDir)..\build\$(PlatformShortName)
+copy $(TargetPath) C:\projects\SIDBlaster\SIDBlasterTest\sidplay2\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
