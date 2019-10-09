@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <vector>
 #include <assert.h>
+#include <stdint.h>
 
 #define FT_OPEN_BY_INDEX  8
 
@@ -45,7 +46,7 @@ BOOL
 D2XXDevice::OpenEx(PVOID arg, DWORD flag) {
   Close();
   if (flag & FT_OPEN_BY_INDEX) 
-    ft_status = FT_Open((int)arg, &handle);
+    ft_status = FT_Open((int)(intptr_t)arg, &handle);
   else 
     ft_status = FT_OpenEx(arg, flag, &handle);
   if (FT_SUCCESS(ft_status)) 
@@ -54,7 +55,7 @@ D2XXDevice::OpenEx(PVOID arg, DWORD flag) {
 }
 
 BOOL D2XXDevice::OpenByIndex(DWORD index) {
-  return OpenEx((PVOID)index, FT_OPEN_BY_INDEX);
+  return OpenEx((PVOID)(intptr_t)index, FT_OPEN_BY_INDEX);
 }
 
 BOOL D2XXDevice::OpenBySerialNumber(const char *serial_number) {
@@ -66,7 +67,7 @@ BOOL D2XXDevice::OpenByDescription(const char *description) {
 }
 
 BOOL D2XXDevice::OpenByLocation(DWORD location) {
-  return OpenEx((PVOID)location, FT_OPEN_BY_LOCATION);
+  return OpenEx((PVOID)(intptr_t)location, FT_OPEN_BY_LOCATION);
 }
 
 D2XXDevice::D2XXDevice(const FT_DEVICE_LIST_INFO_NODE *device_info) : handle(NULL), ft_status(FT_DEVICE_NOT_OPENED) {
@@ -183,12 +184,12 @@ const char *D2XXDevice::GetDescription(void) {
 void D2XXDevice::DisplayInfo(void) {
   char *dev_type_str[] = {"232BM", "232AM", "100AX", "UNKNOWN", "2232C", "232R", "2232H", "4232H", "232H"};
 
-  printf("%18s%s\n", "FT Device type: ", dev_type_str[info.Type]);
-  printf("%18s%s\n", "Serial number: ", info.SerialNumber);
-  printf("%18s%s\n", "Description: ", info.Description);
-  printf("%18s0x%08X\n", "VID&PID: ", info.ID);
-  printf("%18s%d\n", "Is opened: ", (info.Flags & FT_FLAGS_OPENED));
-  printf("%18s0x%08X\n", "Handle: ", info.ftHandle);
+  printf("%18s%s\n", "FT Device type: ",  dev_type_str[info.Type]);
+  printf("%18s%s\n", "Serial number: ",   info.SerialNumber);
+  printf("%18s%s\n", "Description: ",     info.Description);
+  printf("%18s0x%08X\n", "VID&PID: ",     info.ID);
+  printf("%18s%d\n", "Is opened: ",       (info.Flags & FT_FLAGS_OPENED));
+  printf("%18s0x%p\n", "Handle: ",        (void*)info.ftHandle);
   printf("%18s0x%08X\n", "Location ID: ", info.LocId);
 }
 
