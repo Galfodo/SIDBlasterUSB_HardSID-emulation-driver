@@ -19,17 +19,20 @@
 
 namespace D2XXLib
 {
-	BOOL D2XXManager::IsValidDeiviceInfo(FT_DEVICE_LIST_INFO_NODE *dev_info)
-	{
-		//*assert (dev_info);
-		//Check if the FTDI is a real Sidblaster
-		if ((std::string(dev_info->Description).compare("SIDBlaster/USB"))) {
-			return FALSE;
-		}
-		else {
-			return TRUE;
-		}
-	}
+  BOOL D2XXManager::IsValidDeiviceInfo(FT_DEVICE_LIST_INFO_NODE *dev_info)
+  {
+    assert(dev_info);
+    //Check if the FTDI is a real Sidblaster
+    if ((std::string(dev_info->Description).compare("SIDBlaster/USB")) == 0) {
+      return TRUE;
+    }
+    else if (strlen(dev_info->SerialNumber) && strcmp(dev_info->SerialNumber, "A91KB2RE") == 0) { // Steins Tic Tac
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
+  }
 
   DWORD D2XXManager::CreateDeviceList(D2XXDevicesList *list)
   {
