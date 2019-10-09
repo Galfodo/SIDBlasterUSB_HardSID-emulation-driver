@@ -20,11 +20,6 @@ namespace SIDBlaster {
 static int s_DeviceCount;
 
 static void
-ThreadFunction0() {
-  std::this_thread::sleep_for(std::chrono::seconds(10));
-}
-
-static void
 ThreadFunction(ThreadCommandReceiver* receiver, bool* do_abort) {
   s_DeviceCount = receiver->DeviceCount();
   for (int i = 0; i < s_DeviceCount; ++i) {
@@ -140,10 +135,17 @@ void ThreadDispatcher::EnsureInitialized() {
 #endif
     assert(m_Receiver == NULL);
     m_Receiver = new ThreadCommandReceiver();
-    s_DeviceCount = 0;
+    s_DeviceCount = -1;
     m_AbortSIDWriteThread = false;
     m_Receiver->Initialize();
     m_SIDWriteThread = std::thread(ThreadFunction, m_Receiver, &m_AbortSIDWriteThread);
+    if (m_SIDWriteThread.joinable()) {
+      while (s_DeviceCount < 0) {
+        std::this_thread::yield();
+      }
+    } else {
+      s_DeviceCount = 0;
+    }
     m_IsInitialized = true;
   }
 }
@@ -165,9 +167,6 @@ bool ThreadDispatcher::IsAsync() {
 
 int ThreadDispatcher::DeviceCount() {
   EnsureInitialized();
-  while (!m_SIDWriteThread.joinable()) {
-    std::this_thread::yield();
-  }
   return s_DeviceCount;
 }
 
