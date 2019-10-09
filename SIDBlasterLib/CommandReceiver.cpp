@@ -6,6 +6,12 @@
  * Written by stein.pedersen@hue.no
  */
 
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <Windows.h>
+#endif
+
 #include "CommandReceiver.h"
 #include "SIDBlasterInterfaceImpl.h"
 
@@ -26,14 +32,11 @@ CommandReceiver::~CommandReceiver() {
 
 void
 CommandReceiver::Initialize() {
-  QueryPerformanceFrequency((LARGE_INTEGER*)&m_Frq);
-  QueryPerformanceCounter((LARGE_INTEGER*)&m_StartTick);
-  m_NextTick = m_StartTick;
-  m_CycleScale = m_Frq / PAL_CLOCK;
-  m_InvertedCycleScale = PAL_CLOCK / m_Frq;
-  m_AccumulatedCycles = 0;
-  m_IsReadResultReady = false;
-  m_ReadResult = 0;
+  m_IsReadResultReady               = false;
+  m_ReadResult                      = 0;
+  m_CPUcycleDuration                = ratio_t::den / PAL_CLOCK;
+  m_InvCPUcycleDurationNanoSeconds  = 1.0 / (1000000000 / PAL_CLOCK);
+  ResetTimer();
   for (int i = 0; i < SIDBlasterEnumerator::Instance()->DeviceCount(); ++i) {
     m_Devices.push_back(SIDBlasterEnumerator::Instance()->CreateInterface(this, i));
   }
@@ -48,18 +51,19 @@ CommandReceiver::Uninitialize() {
 }
 
 void CommandReceiver::ResetTimer() {
-  QueryPerformanceCounter((LARGE_INTEGER*)&m_NextTick);
-  m_StartTick = m_NextTick;
+  m_StartTime = m_NextTime = std::chrono::high_resolution_clock::now();
   m_AccumulatedCycles = 0;
 }
 
 int CommandReceiver::WaitForCycle(int cycle) {
-  int64 tick = 0;
-  QueryPerformanceCounter((LARGE_INTEGER*)&tick);
-  int64 waitForTick = m_NextTick + (int64)(cycle * m_CycleScale);
-  int64 waitDelta = waitForTick - tick;
-  int msec = (int)(waitDelta * 1000 / m_Frq) - 1;
-  if (msec > 0) {
+  timestamp_t now = std::chrono::high_resolution_clock::now();
+  double dur_ = cycle * m_CPUcycleDuration;
+  duration_t dur = (duration_t)(int64_t)dur_;
+  auto target_time = m_NextTime + dur;
+  auto target_delta = target_time - now;
+  auto wait_msec = std::chrono::duration_cast<std::chrono::milliseconds>(target_delta);
+  auto wait_nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(target_delta);
+  if (wait_msec.count() > 0) {
     for (int i = 0; i < (int)m_Devices.size(); ++i) {
       m_Devices[i]->SoftFlush();
     }
@@ -67,16 +71,16 @@ int CommandReceiver::WaitForCycle(int cycle) {
       std::unique_lock<std::mutex> 
         lockguard(m_WaitMutex);
 
-      m_WaitEvent.wait_for(lockguard, std::chrono::milliseconds(msec));
+      m_WaitEvent.wait_for(lockguard, std::chrono::milliseconds(wait_msec.count()));
     }
   }
-  while (tick < waitForTick) {
-    QueryPerformanceCounter((LARGE_INTEGER*)&tick);
+  while (now < target_time) {
+    now = std::chrono::high_resolution_clock::now();
   }
-  m_CurrentTick = tick;
-  m_NextTick = waitForTick;
-  m_AccumulatedCycles += cycle; // For debugging only
-  return (int)(waitDelta * m_InvertedCycleScale);
+  m_CurrentTime       = now;
+  m_NextTime          = target_time;
+  int waited_cycles   = (int)(wait_nsec.count() * m_InvCPUcycleDurationNanoSeconds);
+  return waited_cycles;
 }
 
 void CommandReceiver::Log(const char* format, ...) {
@@ -93,11 +97,12 @@ void CommandReceiver::Log(const char* format, ...) {
 }
 
 void CommandReceiver::LogTimestamp() {
-  Log("CYC: %08I64X ACC: %08I64X\n", CycleFromTick(m_CurrentTick), m_AccumulatedCycles);
+  Log("CYC: %08I64X ACC: %08I64X\n", CycleFromTimestamp(m_CurrentTime), m_AccumulatedCycles);
 }
 
-int64 CommandReceiver::CycleFromTick(int64 tick) {
-  return (int64)((tick - m_StartTick) * m_InvertedCycleScale);
+int64 CommandReceiver::CycleFromTimestamp(timestamp_t timestamp) {
+  auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(timestamp - m_StartTime);
+  return (int64)(nsec.count() * m_InvCPUcycleDurationNanoSeconds);
 }
 
 int
