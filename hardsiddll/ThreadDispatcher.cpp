@@ -19,20 +19,25 @@ namespace SIDBlaster {
 
 static int s_DeviceCount;
 
-static int
-ThreadFunction(ThreadObject* thread) {
-  assert(thread);
-  assert(thread->Arg());
-  ThreadCommandReceiver* receiver = (ThreadCommandReceiver*)thread->Arg();
+static void
+ThreadFunction0() {
+  std::this_thread::sleep_for(std::chrono::seconds(10));
+}
+
+static void
+ThreadFunction(ThreadCommandReceiver* receiver, bool* do_abort) {
   s_DeviceCount = receiver->DeviceCount();
   for (int i = 0; i < s_DeviceCount; ++i) {
     CommandParams opencommand(i, CommandParams::OpenDevice);
     receiver->ExecuteCommand(opencommand);
   }
-  thread->Start();
-  while (!thread->ShouldAbort()) {
+  while (!*do_abort) {
 #ifdef USE_COMMAND_PENDING_EVENT
-    receiver->m_CommandPendingEvent.Wait(); 
+    {
+      std::unique_lock<std::mutex>
+        lockGuard(receiver->m_CommandPendingMutex);
+      receiver->m_CommandPendingEvent.wait(lockGuard); 
+    }
 #endif
     while (receiver->CommandsPending()) {
       CommandParams command(0, CommandParams::NOP);
@@ -40,11 +45,8 @@ ThreadFunction(ThreadObject* thread) {
         receiver->ExecuteCommand(command);
       }
     }
-#ifdef USE_COMMAND_PENDING_EVENT
-    receiver->m_CommandPendingEvent.Reset();
-#endif
 #ifdef WAIT_FOR_COMMAND_COMPLETION
-    receiver->m_CommandsCompletedEvent.Signal();
+    receiver->m_CommandsCompletedEvent.notify_all();
 #endif
   }
 #ifdef ENABLE_LOG_FILE
@@ -58,33 +60,33 @@ ThreadFunction(ThreadObject* thread) {
 #endif
   CommandParams closecommand(0, CommandParams::CloseDevice);
   receiver->ExecuteCommand(closecommand);
-  return thread->Exit(0);
 }
 
-ThreadDispatcher::ThreadDispatcher() : m_Receiver(NULL) {
+ThreadDispatcher::ThreadDispatcher() : m_Receiver(NULL), m_IsInitialized(false), m_AbortSIDWriteThread(false) {
 }
 
 int
 ThreadDispatcher::SendCommand(CommandParams const& cmd) {
+  EnsureInitialized();
   int retval = 0;
   {
-    while (!m_SIDWriteThread.IsStarted()) {
-      ThreadObject::Yield();
+    while (!m_SIDWriteThread.joinable()) {
+      std::this_thread::yield();
     }
     if (cmd.m_Command == CommandParams::Flush) {
       m_Receiver->Flush();
 #ifdef USE_COMMAND_PENDING_EVENT
-      m_Receiver->m_CommandPendingEvent.Signal();
+      m_Receiver->m_CommandPendingEvent.notify_all();
 #endif
       while (m_Receiver->m_CommandRead != m_Receiver->m_CommandWrite) {
-        ThreadObject::Yield();
+        std::this_thread::yield();
       }
       return 0;
     }
     assert(!m_Receiver->IsReadResultReady());
     if (!m_Receiver->TryPutCommand(cmd)) {
 #ifdef USE_COMMAND_PENDING_EVENT
-      m_Receiver->m_CommandPendingEvent.Signal();
+      m_Receiver->m_CommandPendingEvent.notify_all();
 #endif
       return -1;
     }
@@ -93,65 +95,68 @@ ThreadDispatcher::SendCommand(CommandParams const& cmd) {
     case CommandParams::Write:
 #ifdef USE_COMMAND_PENDING_EVENT
       if (!cmd.m_IsBuffered) {
-        m_Receiver->m_CommandPendingEvent.Signal();
+        m_Receiver->m_CommandPendingEvent.notify_all();
       }
 #endif
       break;
     case CommandParams::Read:
       // BLOCKING! Should be re-engineered to allow an async interface
 #ifdef USE_COMMAND_PENDING_EVENT
-      m_Receiver->m_CommandPendingEvent.Signal();
+      m_Receiver->m_CommandPendingEvent.notify_all();
 #endif
       // Block until read result available
       while (!m_Receiver->IsReadResultReady()) {
-        ThreadObject::Yield();
+        std::this_thread::yield();
       }
       retval = m_Receiver->ReadResult();
       assert(!m_Receiver->IsReadResultReady());
       break;
     default:
 #ifdef USE_COMMAND_PENDING_EVENT
-      m_Receiver->m_CommandPendingEvent.Signal();
+      m_Receiver->m_CommandPendingEvent.notify_all();
 #endif
       break;
     }
   }
 #ifdef WAIT_FOR_COMMAND_COMPLETION
-  m_Receiver->m_CommandsCompletedEvent.Wait(1000); // Set timeout in case worker thread is interrupted
-  m_Receiver->m_CommandsCompletedEvent.Reset();
+  {
+    std::unique_lock<std::mutex>
+      lockGuard(m_Receiver->m_CommandsCompletedMutex);
+
+    m_Receiver->m_CommandsCompletedEvent.wait_for(lockGuard, std::chrono::milliseconds(1000)); // Set timeout in case worker thread is interrupted
+  }
 #endif
   return retval;
 }
 
 void ThreadDispatcher::Initialize() {
+  m_IsInitialized = false;
+}
+
+void ThreadDispatcher::EnsureInitialized() {
+  if (!m_IsInitialized) {
 #ifdef ENABLE_ATTACH_DEBUGGER
-  MessageBox(0, "Attach debugger now!", "hardsid.dll", MB_OK);
+    MessageBox(0, "Attach debugger now!", "hardsid.dll", MB_OK);
 #endif
-  assert(m_Receiver == NULL);
-  m_Receiver = new ThreadCommandReceiver();
-  s_DeviceCount = 0;
-  m_Receiver->Initialize();
-  m_Receiver->m_Mutex.Allocate();
-  m_Receiver->m_CommandPendingEvent.Allocate("CommandPending");
-#ifdef WAIT_FOR_COMMAND_COMPLETION
-  m_Receiver->m_CommandsCompletedEvent.Allocate("CommandsCompleted");
-#endif
-  m_SIDWriteThread.StartThread((ThreadObject::ThreadFunction)ThreadFunction, m_Receiver);
+    assert(m_Receiver == NULL);
+    m_Receiver = new ThreadCommandReceiver();
+    s_DeviceCount = 0;
+    m_AbortSIDWriteThread = false;
+    m_Receiver->Initialize();
+    m_SIDWriteThread = std::thread(ThreadFunction, m_Receiver, &m_AbortSIDWriteThread);
+    m_IsInitialized = true;
+  }
 }
 
 void ThreadDispatcher::Uninitialize() {
-  m_SIDWriteThread.Abort();
-  while (!m_SIDWriteThread.IsExited()) {
-    ThreadObject::Yield();
+  if (m_IsInitialized) {
+    m_AbortSIDWriteThread = true;
+    m_SIDWriteThread.join();
+    m_Receiver->Uninitialize();
+    delete m_Receiver;
+    m_Receiver = NULL;
+    m_IsInitialized = false;
   }
-  m_Receiver->Uninitialize();
-#ifdef WAIT_FOR_COMMAND_COMPLETION
-  m_Receiver->m_CommandsCompletedEvent.DeAllocate();
-#endif
-  m_Receiver->m_CommandPendingEvent.DeAllocate();
-  m_Receiver->m_Mutex.DeAllocate();
-  delete m_Receiver;
-  m_Receiver = NULL;
 }
 
 bool ThreadDispatcher::IsAsync() {
@@ -159,8 +164,9 @@ bool ThreadDispatcher::IsAsync() {
 }
 
 int ThreadDispatcher::DeviceCount() {
-  while (!m_SIDWriteThread.IsStarted()) {
-    ThreadObject::Yield();
+  EnsureInitialized();
+  while (!m_SIDWriteThread.joinable()) {
+    std::this_thread::yield();
   }
   return s_DeviceCount;
 }

@@ -1,3 +1,4 @@
+LIBRARY HARDSID
 EXPORTS
     GetHardSIDCount @1
     HardSID_Delay @2
