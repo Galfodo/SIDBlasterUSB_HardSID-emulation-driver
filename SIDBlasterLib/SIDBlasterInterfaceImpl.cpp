@@ -45,7 +45,7 @@ SIDBlasterInterfaceImpl::~SIDBlasterInterfaceImpl() {
 
 void SIDBlasterInterfaceImpl::Open() {
   if (m_SID && !m_isOpen) {
-    if (!m_SID->Open() || !m_SID->Initialise()) {
+    if (!m_SID->Open() || !m_SID->Initialize()) {
       m_SID = NULL;
       fprintf(stderr, "Failed to initialize SIDBlaster.\n");
       return;

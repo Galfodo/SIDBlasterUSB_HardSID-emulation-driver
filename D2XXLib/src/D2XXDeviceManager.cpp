@@ -1,34 +1,24 @@
 
 /* Adapted from https://github.com/ssidko/DMT/blob/master/D2xx.h */
 
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#else
-#error "unsupported platform"
-#endif
-
 #include "D2XXLib/D2XXDevice.h"
 #include "D2XXLib/D2XXDeviceManager.h"
 #include <stdio.h>
 #include <vector>
 #include <assert.h>
 
-#define D2XX_MANAGER_RESCAN_TIMEOUT          (DWORD)15000
-#define D2XX_MANAGER_RESCAN_SLEEP_TIMEOUT      (DWORD)500
-
 namespace D2XXLib
 {
-  BOOL D2XXManager::IsValidDeviceInfo(FT_DEVICE_LIST_INFO_NODE *dev_info)
+  bool D2XXManager::IsValidDeviceInfo(FT_DEVICE_LIST_INFO_NODE *dev_info)
   {
     assert (dev_info);
 
     //Check if the FTDI is a real Sidblaster
-    if ((std::string(dev_info->Description).compare("SIDBlaster/USB")) == 0) {
-      return TRUE;
+    if (strcmp(dev_info->Description, "SIDBlaster/USB") == 0) {
+      return true;
     }
     else {
-      return FALSE;
+      return false;
     }
   }
 
@@ -38,7 +28,6 @@ namespace D2XXLib
     D2XXDevice *device = NULL;
     FT_DEVICE_LIST_INFO_NODE *ft_info = NULL;
     FT_DEVICE_LIST_INFO_NODE *ft_info_list = NULL;
-    DWORD tick_count = ::GetTickCount();
 
     CleanList(list);
     if (FT_SUCCESS(ft_status = FT_CreateDeviceInfoList(&device_count))) {
@@ -84,7 +73,7 @@ namespace D2XXLib
 
   DWORD D2XXManager::Rescan(void)
   {
-    BOOL find = FALSE;
+    bool find = false;
     D2XXDevicesList::iterator it;
     D2XXDevicesList::iterator tmp_it;
     D2XXDevicesList tmp_list;
@@ -92,7 +81,7 @@ namespace D2XXLib
     for (tmp_it = tmp_list.begin(); tmp_it != tmp_list.end(); tmp_it++) {
       for (it = dev_list.begin(); it != dev_list.end(); it++) {
         if (!strcmp((*tmp_it)->GetSerialNumber(), (*it)->GetSerialNumber())) {
-          find = TRUE;
+          find = true;
           break;  
         }          
       }
@@ -100,12 +89,12 @@ namespace D2XXLib
         dev_list.push_back(*tmp_it);
         Notify(*tmp_it, kPlugged);
       }
-      find = FALSE;
+      find = false;
     }
     for (it = dev_list.begin(); it != dev_list.end(); it++) {
       for (tmp_it = tmp_list.begin(); tmp_it != tmp_list.end(); tmp_it++) {
         if (!strcmp((*it)->GetSerialNumber(), (*tmp_it)->GetSerialNumber())) {
-          find = TRUE;
+          find = true;
           break;
         }
       }
@@ -115,7 +104,7 @@ namespace D2XXLib
         it = dev_list.erase(it);
         if (it == dev_list.end()) break;
       }
-      find = FALSE;
+      find = false;
     }
     return dev_count = (DWORD)dev_list.size();
   }

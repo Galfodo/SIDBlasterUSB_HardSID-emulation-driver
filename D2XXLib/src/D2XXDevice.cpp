@@ -1,13 +1,6 @@
 
 /* Adapted from https://github.com/ssidko/DMT/blob/master/D2xx.h */
 
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#else
-#error "unsupported platform"
-#endif
-
 #include "D2XXLib/D2XXDevice.h"
 #ifdef USE_FTCHIPID
 #include "FTChipID.h"
@@ -16,7 +9,6 @@
 #include <stdio.h>
 #include <vector>
 #include <assert.h>
-#include <stdint.h>
 
 #define FT_OPEN_BY_INDEX  8
 
@@ -42,7 +34,7 @@ class D2XXManager;
 
 D2XXManager *GetD2XXManager(void);
 
-BOOL 
+bool 
 D2XXDevice::OpenEx(PVOID arg, DWORD flag) {
   Close();
   if (flag & FT_OPEN_BY_INDEX) 
@@ -54,19 +46,19 @@ D2XXDevice::OpenEx(PVOID arg, DWORD flag) {
   return FT_SUCCESS(ft_status);
 }
 
-BOOL D2XXDevice::OpenByIndex(DWORD index) {
+bool D2XXDevice::OpenByIndex(DWORD index) {
   return OpenEx((PVOID)(intptr_t)index, FT_OPEN_BY_INDEX);
 }
 
-BOOL D2XXDevice::OpenBySerialNumber(const char *serial_number) {
+bool D2XXDevice::OpenBySerialNumber(const char *serial_number) {
   return OpenEx((PVOID)serial_number, FT_OPEN_BY_SERIAL_NUMBER);
 }
 
-BOOL D2XXDevice::OpenByDescription(const char *description) {
+bool D2XXDevice::OpenByDescription(const char *description) {
   return OpenEx((PVOID)description, FT_OPEN_BY_DESCRIPTION);
 }
 
-BOOL D2XXDevice::OpenByLocation(DWORD location) {
+bool D2XXDevice::OpenByLocation(DWORD location) {
   return OpenEx((PVOID)(intptr_t)location, FT_OPEN_BY_LOCATION);
 }
 
@@ -79,7 +71,7 @@ D2XXDevice::~D2XXDevice() {
   Close();
 }
 
-BOOL D2XXDevice::Open() {
+bool D2XXDevice::Open() {
   return OpenEx(info.SerialNumber, FT_OPEN_BY_SERIAL_NUMBER);
 }
 
@@ -118,40 +110,40 @@ DWORD D2XXDevice::Write(void *buffer, DWORD count) {
   }
 }
 
-BOOL 
+bool 
 D2XXDevice::IsOpen() {
   return (handle != NULL);
 }
 
-BOOL 
-D2XXDevice::Initialise(void) {
-  BOOL ret = TRUE;
+bool 
+D2XXDevice::Initialize(void) {
+  bool ret = true;
   ret &= SetTimeouts(FT_READ_TIMEOUT, FT_WRITE_TIMEOUT);
   ret &= SetBaudRate(FT_BAUD_RATE);
   ret &= SetDataCharacteristics(FT_WORD_LENGTH, FT_STOP_BITS_1, FT_PARITY_NONE);
   return ret;
 }
 
-BOOL 
+bool 
 D2XXDevice::SetTimeouts(DWORD read_timeout, DWORD write_timeout) {
   return (FT_SUCCESS(ft_status = FT_SetTimeouts(handle, read_timeout, write_timeout)));
 }
 
-BOOL D2XXDevice::SetBaudRate(DWORD baud_rate) {
+bool D2XXDevice::SetBaudRate(DWORD baud_rate) {
   return (FT_SUCCESS(ft_status = FT_SetBaudRate(handle, baud_rate)));
 }
 
-BOOL D2XXDevice::SetDataCharacteristics(BYTE word_length, BYTE stop_bits, BYTE parity) {
+bool D2XXDevice::SetDataCharacteristics(BYTE word_length, BYTE stop_bits, BYTE parity) {
   return (FT_SUCCESS(ft_status = FT_SetDataCharacteristics(handle, word_length, stop_bits, parity)));
 }
 
-BOOL D2XXDevice::GetQueueStatus(DWORD *rx_bytes, DWORD *tx_bytes, DWORD *event_status) {
+bool D2XXDevice::GetQueueStatus(DWORD *rx_bytes, DWORD *tx_bytes, DWORD *event_status) {
   return FT_SUCCESS(ft_status = FT_GetStatus(handle, rx_bytes, tx_bytes, event_status));
 }
 
 #ifdef USE_FTCHIPID
 
-BOOL D2XXDevice::GetUniqueChipID(DWORD *chip_id) {
+bool D2XXDevice::GetUniqueChipID(DWORD *chip_id) {
   return FT_SUCCESS(ft_status = FTID_GetChipIDFromHandle(handle, chip_id));
 }
 
@@ -184,13 +176,13 @@ const char *D2XXDevice::GetDescription(void) {
 void D2XXDevice::DisplayInfo(void) {
   char *dev_type_str[] = {"232BM", "232AM", "100AX", "UNKNOWN", "2232C", "232R", "2232H", "4232H", "232H"};
 
-  printf("%18s%s\n", "FT Device type: ",  dev_type_str[info.Type]);
-  printf("%18s%s\n", "Serial number: ",   info.SerialNumber);
-  printf("%18s%s\n", "Description: ",     info.Description);
-  printf("%18s0x%08X\n", "VID&PID: ",     info.ID);
-  printf("%18s%d\n", "Is opened: ",       (info.Flags & FT_FLAGS_OPENED));
-  printf("%18s0x%p\n", "Handle: ",        (void*)info.ftHandle);
-  printf("%18s0x%08X\n", "Location ID: ", info.LocId);
+  printf("%18s%s\n",      "FT Device type: ", dev_type_str[info.Type]);
+  printf("%18s%s\n",      "Serial number: ",  info.SerialNumber);
+  printf("%18s%s\n",      "Description: ",    info.Description);
+  printf("%18s0x%08X\n",  "VID&PID: ",        info.ID);
+  printf("%18s%d\n",      "Is opened: ",      (info.Flags & FT_FLAGS_OPENED));
+  printf("%18s0x%p\n",    "Handle: ",         (void*)info.ftHandle);
+  printf("%18s0x%08X\n",  "Location ID: ",    info.LocId);
 }
 
 DWORD D2XXDevice::Send(std::vector<unsigned char> const& data) {
