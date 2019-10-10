@@ -1,22 +1,20 @@
 #ifndef SIDBLASTER_COMMANDRECEIVER_H_INCLUDED
 #define SIDBLASTER_COMMANDRECEIVER_H_INCLUDED
 
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <windows.h>
-#endif
-
 #include "CommandDispatcher.h"
 #include "ILogger.h"
 
 #include <vector>
-#include <condition_variable>
+#include <chrono>
 
 namespace SIDBlaster {
 
 class CommandReceiver : public ILogger {
 public:
+  typedef std::chrono::high_resolution_clock::time_point timestamp_t;
+  typedef std::chrono::nanoseconds  duration_t;
+  typedef std::nano                 ratio_t;
+
                         CommandReceiver();
                         ~CommandReceiver();
   int                   ExecuteCommand(CommandParams const& command);
@@ -52,21 +50,16 @@ public:
   {
     TIMING_SAMPLES = 8
   };
-  int64                 CycleFromTick(int64 tick);
-  int64                 m_Frq; // Performance Frequency
-  int64                 m_StartTick;
-  int64                 m_NextTick;
-  int64                 m_CurrentTick;
-  double                m_CycleScale; // CPU_CYCLE * CYCLESCALE = TICKS (QPC ticks)
-  double                m_InvertedCycleScale;
+  int64                 CycleFromTimestamp(timestamp_t tick);
+  timestamp_t           m_StartTime;
+  timestamp_t           m_NextTime;
+  timestamp_t           m_CurrentTime;
+  double                m_CPUcycleDuration;
+  double                m_InvCPUcycleDurationNanoSeconds;
 
   int64                 m_AccumulatedCycles;
 
   bool                  m_AdaptiveWriteBuffer;
-
-  std::condition_variable 
-                        m_WaitEvent;
-  std::mutex            m_WaitMutex;
 
   int                   m_TimingSamples[TIMING_SAMPLES];
   int                   m_TimingSampleIndex;

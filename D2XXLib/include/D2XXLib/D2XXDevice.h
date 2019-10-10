@@ -3,6 +3,11 @@
 
 /* Adapted from https://github.com/ssidko/DMT/blob/master/D2xx.h */
 
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <Windows.h>
+#endif
 #include "ftd2xx.h"
 #include "Utilities.h"
 #include <vector>
@@ -16,27 +21,27 @@ private:
   FT_STATUS ft_status;
   FT_DEVICE_LIST_INFO_NODE info;
 
-  BOOL OpenEx(PVOID arg, DWORD flag);
-  BOOL OpenByIndex(DWORD index);
-  BOOL OpenBySerialNumber(const char *serial_number);
-  BOOL OpenByDescription(const char *description);
-  BOOL OpenByLocation(DWORD location);
+  bool OpenEx(PVOID arg, DWORD flag);
+  bool OpenByIndex(DWORD index);
+  bool OpenBySerialNumber(const char *serial_number);
+  bool OpenByDescription(const char *description);
+  bool OpenByLocation(DWORD location);
 
 public:
   D2XXDevice(const FT_DEVICE_LIST_INFO_NODE *device_info);
   ~D2XXDevice();
-  virtual BOOL Open();
+  virtual bool Open();
   virtual void Close(void);
   virtual DWORD Read(void *buffer, DWORD count);
   virtual DWORD Write(void *buffer, DWORD count);
-  BOOL IsOpen();
-  BOOL Initialise(void);
-  BOOL SetTimeouts(DWORD read_timeout, DWORD write_timeout);
-  BOOL SetBaudRate(DWORD baud_rate);
-  BOOL SetDataCharacteristics(BYTE word_length, BYTE stop_bits, BYTE parity);
-  BOOL GetQueueStatus(DWORD *rx_bytes, DWORD *tx_bytes, DWORD *event_status);
+  bool IsOpen();
+  bool Initialize(void);
+  bool SetTimeouts(DWORD read_timeout, DWORD write_timeout);
+  bool SetBaudRate(DWORD baud_rate);
+  bool SetDataCharacteristics(BYTE word_length, BYTE stop_bits, BYTE parity);
+  bool GetQueueStatus(DWORD *rx_bytes, DWORD *tx_bytes, DWORD *event_status);
 #ifdef USE_FTCHIPID
-  BOOL GetUniqueChipID(DWORD *chip_id);
+  bool GetUniqueChipID(DWORD *chip_id);
 #endif
   DWORD FT_Status(void);
   DWORD GetType(void);
