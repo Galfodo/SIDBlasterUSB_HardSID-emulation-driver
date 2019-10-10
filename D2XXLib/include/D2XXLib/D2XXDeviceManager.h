@@ -17,7 +17,7 @@ namespace D2XXLib
     FT_STATUS ft_status;
     D2XXDevicesList dev_list;
 
-    BOOL IsValidDeiviceInfo(FT_DEVICE_LIST_INFO_NODE *dev_info);
+    BOOL IsValidDeviceInfo(FT_DEVICE_LIST_INFO_NODE *dev_info);
     DWORD CreateDeviceList(D2XXDevicesList *list);
     void CleanList(D2XXDevicesList *list);
   public:

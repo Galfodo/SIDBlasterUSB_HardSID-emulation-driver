@@ -19,49 +19,44 @@
 
 namespace D2XXLib
 {
-	BOOL D2XXManager::IsValidDeiviceInfo(FT_DEVICE_LIST_INFO_NODE *dev_info)
-	{
-		//*assert (dev_info);
-		//Check if the FTDI is a real Sidblaster
-		if ((std::string(dev_info->Description).compare("SIDBlaster/USB"))) {
-			return FALSE;
-		}
-		else {
-			return TRUE;
-		}
-	}
+  BOOL D2XXManager::IsValidDeviceInfo(FT_DEVICE_LIST_INFO_NODE *dev_info)
+  {
+    assert (dev_info);
+
+    //Check if the FTDI is a real Sidblaster
+    if ((std::string(dev_info->Description).compare("SIDBlaster/USB")) == 0) {
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
+  }
 
   DWORD D2XXManager::CreateDeviceList(D2XXDevicesList *list)
   {
-    BOOL all_dev_valid = TRUE;
-    DWORD deice_count = 0;
+    DWORD device_count = 0;
     D2XXDevice *device = NULL;
     FT_DEVICE_LIST_INFO_NODE *ft_info = NULL;
     FT_DEVICE_LIST_INFO_NODE *ft_info_list = NULL;
     DWORD tick_count = ::GetTickCount();
 
-    do {
-      CleanList(list);
-      all_dev_valid = TRUE;
-      if (FT_SUCCESS(ft_status = FT_CreateDeviceInfoList(&deice_count))) {
-        if (deice_count) {
-          ft_info_list = new FT_DEVICE_LIST_INFO_NODE[deice_count*sizeof(FT_DEVICE_LIST_INFO_NODE)];
-          memset(ft_info_list, 0x00, deice_count*sizeof(FT_DEVICE_LIST_INFO_NODE));
-          if (FT_SUCCESS(ft_status = FT_GetDeviceInfoList(ft_info_list, &deice_count))) {
-            ft_info = ft_info_list;
-            for (DWORD i = 0; i < deice_count; i++, ft_info++) {
-              if (IsValidDeiviceInfo(ft_info)) {
-                device = new D2XXDevice(ft_info);
-                list->push_back(device);
-              }
-              //else all_dev_valid = FALSE;
+    CleanList(list);
+    if (FT_SUCCESS(ft_status = FT_CreateDeviceInfoList(&device_count))) {
+      if (device_count) {
+        ft_info_list = new FT_DEVICE_LIST_INFO_NODE[device_count*sizeof(FT_DEVICE_LIST_INFO_NODE)];
+        memset(ft_info_list, 0x00, device_count*sizeof(FT_DEVICE_LIST_INFO_NODE));
+        if (FT_SUCCESS(ft_status = FT_GetDeviceInfoList(ft_info_list, &device_count))) {
+          ft_info = ft_info_list;
+          for (DWORD i = 0; i < device_count; i++, ft_info++) {
+            if (IsValidDeviceInfo(ft_info)) {
+              device = new D2XXDevice(ft_info);
+              list->push_back(device);
             }
           }
-          delete[] ft_info_list;
         }
+        delete[] ft_info_list;
       }
-      if (!all_dev_valid) ::Sleep(D2XX_MANAGER_RESCAN_SLEEP_TIMEOUT);
-    } while (!(all_dev_valid || ((::GetTickCount() - tick_count) > D2XX_MANAGER_RESCAN_TIMEOUT)));
+    }
     return (DWORD)list->size();
   }
 

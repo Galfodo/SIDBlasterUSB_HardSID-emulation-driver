@@ -4,13 +4,13 @@
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
+#include <Windows.h>
 #else
 typedef unsigned int DWORD;
 typedef int BOOL;
 #endif
 
 #include <list>
-#include <windows.h>
 #include <assert.h>
 
 namespace D2XXLib
