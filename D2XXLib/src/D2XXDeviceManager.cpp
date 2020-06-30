@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <vector>
 #include <assert.h>
+#include <algorithm>
 
 namespace D2XXLib
 {
@@ -21,14 +22,20 @@ namespace D2XXLib
       return false;
     }
   }
-
+  
+  // Sort device list by seriaL number
+  bool sortBySerial(D2XXDevice * lhs, D2XXDevice * rhs)
+  {	
+	  return (strcmp(lhs->GetSerialNumber(), rhs->GetSerialNumber()) < 0);
+  }
+  
   DWORD D2XXManager::CreateDeviceList(D2XXDevicesList *list)
   {
     DWORD device_count = 0;
     D2XXDevice *device = NULL;
     FT_DEVICE_LIST_INFO_NODE *ft_info = NULL;
     FT_DEVICE_LIST_INFO_NODE *ft_info_list = NULL;
-
+		
     CleanList(list);
     if (FT_SUCCESS(ft_status = FT_CreateDeviceInfoList(&device_count))) {
       if (device_count) {
@@ -41,7 +48,8 @@ namespace D2XXLib
               device = new D2XXDevice(ft_info);
               list->push_back(device);
             }
-          }
+		  }
+		  std::sort(list->begin(),list->end(),sortBySerial);
         }
         delete[] ft_info_list;
       }

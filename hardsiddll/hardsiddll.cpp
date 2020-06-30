@@ -21,7 +21,7 @@ using namespace SIDBlaster;
 #define DLLEXPORT __declspec(dllexport) __stdcall
 #endif
 
-#define HARDSID_VERSION      0x0201
+#define HARDSID_VERSION      0x0202
 
 typedef unsigned char Uint8;
 typedef unsigned short Uint16;
