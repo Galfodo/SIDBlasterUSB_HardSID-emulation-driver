@@ -20,7 +20,7 @@ using namespace SIDBlaster;
 #define DLLEXPORT __declspec(dllexport) __stdcall
 #endif
 
-#define HARDSID_VERSION      0x0203
+#define HARDSID_VERSION      0x0202
 
 typedef unsigned char Uint8;
 typedef unsigned short Uint16;
@@ -180,8 +180,7 @@ BOOL DLLEXPORT HardSID_ExternalTiming(Uint8 DeviceID) {
 }
 
 const char* DLLEXPORT HardSID_GetSerial(Uint8 DeviceID) {
-
-	return (x_Manager->GetSerialNo(DeviceID));
+		return (x_Manager->GetSerialNo(DeviceID));
 }
 
 }
