@@ -7,11 +7,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
-
 #include <thread>
-
 #include "CommandDispatcher.h"
 
+namespace D2XXLib {
+	class D2XXDevice;
+	class D2XXManager;
+}
 
 using namespace SIDBlaster;
 
@@ -21,7 +23,7 @@ using namespace SIDBlaster;
 #define DLLEXPORT __declspec(dllexport) __stdcall
 #endif
 
-#define HARDSID_VERSION      0x0202
+#define HARDSID_VERSION      0x0203
 
 typedef unsigned char Uint8;
 typedef unsigned short Uint16;
@@ -176,6 +178,11 @@ BYTE DLLEXPORT HardSID_Try_Write(Uint8 DeviceID, int Cycles, Uint8 SID_reg, Uint
 
 BOOL DLLEXPORT HardSID_ExternalTiming(Uint8 DeviceID) {
   return g_CommandDispatcher->IsAsync();
+}
+
+const char* DLLEXPORT HardSID_GetSerial(Uint8 DeviceID) {
+
+	return ("0123456789ABCDEF");
 }
 
 }
