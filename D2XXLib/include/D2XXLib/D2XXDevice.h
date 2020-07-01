@@ -8,7 +8,7 @@
 #define NOMINMAX
 #include <Windows.h>
 #endif
-#include "ftd2xx.h"
+#include "..\include\ftd2xx.h"
 #include "Utilities.h"
 #include <vector>
 

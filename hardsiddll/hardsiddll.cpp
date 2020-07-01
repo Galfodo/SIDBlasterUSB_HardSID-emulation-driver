@@ -9,11 +9,8 @@
 #include <windows.h>
 #include <thread>
 #include "CommandDispatcher.h"
-
-namespace D2XXLib {
-	class D2XXDevice;
-	class D2XXManager;
-}
+#include "..\D2XXLib\include\D2XXLib\D2XXDevice.h"
+#include "..\D2XXLib\include\D2XXLib\D2XXDeviceManager.h"
 
 using namespace SIDBlaster;
 
@@ -28,6 +25,8 @@ using namespace SIDBlaster;
 typedef unsigned char Uint8;
 typedef unsigned short Uint16;
 typedef unsigned char boolean;
+
+D2XXLib::D2XXManager* x_Manager = D2XXLib::D2XXManager::getInstance();
 
 // Command despatcher is defined in a different file, depending on mode of operation: standalone dll or winhost
 extern SIDBlaster::CommandDispatcher
@@ -182,7 +181,7 @@ BOOL DLLEXPORT HardSID_ExternalTiming(Uint8 DeviceID) {
 
 const char* DLLEXPORT HardSID_GetSerial(Uint8 DeviceID) {
 
-	return ("0123456789ABCDEF");
+	return (x_Manager->GetSerialNo(DeviceID));
 }
 
 }

@@ -13,6 +13,10 @@ namespace D2XXLib
   class D2XXManager : public ManagerNotifier, public Observer
   {
   private:
+	static D2XXManager* instance;
+	D2XXManager();
+	D2XXManager(const D2XXManager&) {}
+	~D2XXManager();
     DWORD dev_count;
     FT_STATUS ft_status;
     D2XXDevicesList dev_list;
@@ -21,14 +25,15 @@ namespace D2XXLib
     DWORD CreateDeviceList(D2XXDevicesList *list);
     void CleanList(D2XXDevicesList *list);
   public:
-    D2XXManager();
-    ~D2XXManager();
+	static D2XXManager* getInstance();
+	static void destroy();
     DWORD Count(void);
     DWORD Rescan(void);
     D2XXDevice *GetDevice(DWORD index);
     DWORD FT_Status(void);
     void DisplayDevicesInfo(void);
     virtual void Update(Subject *subject);
+	const char* GetSerialNo(DWORD index);
   };
 
 }

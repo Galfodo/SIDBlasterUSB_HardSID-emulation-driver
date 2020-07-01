@@ -152,4 +152,24 @@ namespace D2XXLib
     }
   }
 
+  D2XXManager* D2XXManager::instance = 0L;
+
+  D2XXManager* D2XXManager::getInstance()
+  {
+	  if (instance==0)
+		  instance = new D2XXManager();
+	  return instance;
+  }
+
+  void D2XXManager::destroy()
+  {
+	  delete instance;
+	  instance = 0;
+  }
+
+  const char* D2XXManager::GetSerialNo(DWORD index)
+  {
+	  return(dev_list.at(index)->GetSerialNumber());
+  }
+
 }
