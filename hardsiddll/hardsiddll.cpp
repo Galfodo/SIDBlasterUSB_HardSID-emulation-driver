@@ -179,8 +179,8 @@ BOOL DLLEXPORT HardSID_ExternalTiming(Uint8 DeviceID) {
   return g_CommandDispatcher->IsAsync();
 }
 
-const char* DLLEXPORT HardSID_GetSerial(Uint8 DeviceID) {
-		return (x_Manager->GetSerialNo(DeviceID));
+void DLLEXPORT HardSID_GetSerial(Uint8 DeviceID, char* output) {
+	strncpy_s(output, 9, (char*)x_Manager->GetSerialNo(DeviceID),8);
 }
 
 }
