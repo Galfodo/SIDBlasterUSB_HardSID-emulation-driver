@@ -49,6 +49,8 @@ public:
   DWORD GetLocationID(void);
   const char *GetSerialNumber(void);
   const char *GetDescription(void);
+  int getSIDinfo(void);
+  int setSIDinfo(DWORD index, int sidtype);
   void DisplayInfo(void);
   DWORD Send(std::vector<unsigned char> const& data);
   DWORD Send(unsigned char const* data, size_t size);

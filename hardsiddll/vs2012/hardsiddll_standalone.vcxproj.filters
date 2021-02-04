@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
@@ -16,36 +12,40 @@
     <Filter Include="doc">
       <UniqueIdentifier>{b0b27fe9-c6b9-4da3-9752-6d3b4278f2f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\DriverDefs.h">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files\Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ThreadReceiver.h">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files\Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ThreadDispatcher.h">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files\Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\SyncDispatcher.h">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files\Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ThreadDispatcher.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\dllmain.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\hardsiddll.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\ThreadReceiver.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\SyncDispatcher.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

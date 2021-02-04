@@ -23,3 +23,6 @@ EXPORTS
     HardSID_Try_Write @21
     HardSID_ExternalTiming @22
 	HardSID_GetSerial @23
+	HardSID_SetSIDInfo @24
+	HardSID_GetSIDInfo @25
+	

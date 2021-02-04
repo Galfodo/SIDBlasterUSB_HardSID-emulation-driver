@@ -34,6 +34,8 @@ namespace D2XXLib
     void DisplayDevicesInfo(void);
     virtual void Update(Subject *subject);
 	const char* GetSerialNo(DWORD index);
+	int GetSIDInfo(DWORD index);
+	int SetSIDInfo(DWORD index, int sidtype);
   };
 
 }

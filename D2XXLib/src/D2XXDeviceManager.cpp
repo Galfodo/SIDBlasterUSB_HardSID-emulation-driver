@@ -15,7 +15,9 @@ namespace D2XXLib
     assert (dev_info);
 
     //Check if the FTDI is a real Sidblaster
-    if (strcmp(dev_info->Description, "SIDBlaster/USB") == 0) {
+	char myTempString[15];
+	strncpy_s(myTempString, 15, dev_info->Description, 14);
+    if (strcmp(myTempString, "SIDBlaster/USB") == 0) {
       return true;
     }
     else {
@@ -172,4 +174,13 @@ namespace D2XXLib
 	  return(dev_list.at(index)->GetSerialNumber());
   }
 
+  int D2XXManager::GetSIDInfo(DWORD index)
+  {
+	  return (dev_list.at(index)->getSIDinfo());
+  }
+  
+  int D2XXManager::SetSIDInfo(DWORD index, int sidtype)
+  {
+	  return (dev_list.at(index)->setSIDinfo(index, sidtype));
+  }
 }

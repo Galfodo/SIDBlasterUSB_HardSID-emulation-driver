@@ -173,6 +173,58 @@ const char *D2XXDevice::GetDescription(void) {
   return info.Description;
 }
 
+int D2XXDevice::getSIDinfo(void) {
+	if (strlen(info.Description) == 14) {
+		return 0;
+	}
+	else {
+		if (strlen(info.Description) == 19) {
+			char mytempstrg[19];
+			strncpy_s(mytempstrg, info.Description + 15, 4);
+			if (strcmp(mytempstrg, "6581") == 0) return 1;
+			if (strcmp(mytempstrg, "8580") == 0) return 2;
+		}
+		return 0;
+	}
+}
+
+int D2XXDevice::setSIDinfo(DWORD index, int sidtype) {
+	
+	char Manufacturer[64];
+	char ManufacturerId[64];
+	char Description[64];
+	char SerialNumber[64];
+	
+	FT_EEPROM_HEADER ft_eeprom_header;
+	ft_eeprom_header.deviceType = FT_DEVICE_232R; // FTxxxx device type to be accessed
+	FT_EEPROM_232R ft_eeprom_232R;
+	ft_eeprom_232R.common = ft_eeprom_header;
+	ft_eeprom_232R.common.deviceType = FT_DEVICE_232R;
+	
+	if (!IsOpen()) {
+		OpenByIndex(index);
+	}
+	ft_status = FT_EEPROM_Read(handle, &ft_eeprom_232R, sizeof(ft_eeprom_232R),Manufacturer, ManufacturerId, Description, SerialNumber);
+	switch (sidtype)
+	{
+	case 0: 
+		strcpy_s(Description, "SIDBlaster/USB");
+		break;
+	case 1: 
+		strcpy_s(Description, "SIDBlaster/USB/6581");
+		break;
+	case 2:
+		strcpy_s(Description, "SIDBlaster/USB/8580");
+		break;
+	default:
+		return 1;
+	}
+
+	ft_status = FT_EEPROM_Program(handle, &ft_eeprom_232R, sizeof(ft_eeprom_232R), Manufacturer, ManufacturerId, Description, SerialNumber);
+		
+	return ft_status;
+}
+
 void D2XXDevice::DisplayInfo(void) {
   char *dev_type_str[] = {"232BM", "232AM", "100AX", "UNKNOWN", "2232C", "232R", "2232H", "4232H", "232H"};
 
@@ -181,7 +233,7 @@ void D2XXDevice::DisplayInfo(void) {
   printf("%18s%s\n",      "Description: ",    info.Description);
   printf("%18s0x%08X\n",  "VID&PID: ",        info.ID);
   printf("%18s%d\n",      "Is opened: ",      (info.Flags & FT_FLAGS_OPENED));
-  printf("%18s0x%p\n",    "Handle: ",         (void*)info.ftHandle);
+  printf("%18s0x%p\n",    "Handle: ",         (void *)info.ftHandle);
   printf("%18s0x%08X\n",  "Location ID: ",    info.LocId);
 }
 
