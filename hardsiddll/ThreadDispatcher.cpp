@@ -60,6 +60,10 @@ ThreadFunction(ThreadCommandReceiver* receiver, bool* do_abort) {
 ThreadDispatcher::ThreadDispatcher() : m_Receiver(NULL), m_IsInitialized(false), m_AbortSIDWriteThread(false) {
 }
 
+void ThreadDispatcher::setWriteBufferSize(int bufferSize) {
+	m_bufferSize = bufferSize;
+}
+
 int
 ThreadDispatcher::SendCommand(CommandParams const& cmd) {
   EnsureInitialized();

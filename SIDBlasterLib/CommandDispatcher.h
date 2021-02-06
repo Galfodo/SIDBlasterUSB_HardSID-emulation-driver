@@ -51,6 +51,7 @@ public:
   virtual void  Initialize() = 0;
   virtual void  Uninitialize() = 0;
   virtual int   DeviceCount() = 0;
+  virtual void  setWriteBufferSize(int bufferSize) = 0;
 };
 
 }

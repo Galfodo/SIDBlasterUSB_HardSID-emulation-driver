@@ -189,11 +189,15 @@ extern "C" {
 	}
 	
 	// ***********************************************0x203****************************************************
+	
+	void DLLEXPORT HardSID_SetWriteBufferSize(Uint8 bufferSize) {
+		g_CommandDispatcher->setWriteBufferSize(bufferSize);
+	}
+	
 	// sidtype:
 	// 0 none
 	// 1 6581
 	// 2 8580
-
 	// this function is "death end", host program must terminate after call and the sidblaster must reconnect
 	int DLLEXPORT HardSID_SetSIDInfo(Uint8 DeviceID, int sidtype) { //returns success
 		return x_Manager->SetSIDInfo(DeviceID, sidtype);
@@ -202,5 +206,6 @@ extern "C" {
 	int DLLEXPORT HardSID_GetSIDInfo(Uint8 DeviceID) { //returns sidtype
 		return x_Manager->GetSIDInfo(DeviceID);
 	}
+
 
 }
