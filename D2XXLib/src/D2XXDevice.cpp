@@ -180,6 +180,7 @@ int D2XXDevice::getSIDinfo(void) {
 	else {
 		if (strlen(info.Description) == 19) {
 			char mytempstrg[19];
+			mytempstrg[0] = 0;
 			strncpy_s(mytempstrg, info.Description + 15, 4);
 			if (strcmp(mytempstrg, "6581") == 0) return 1;
 			if (strcmp(mytempstrg, "8580") == 0) return 2;
