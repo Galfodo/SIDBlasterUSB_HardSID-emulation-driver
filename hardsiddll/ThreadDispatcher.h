@@ -22,7 +22,7 @@ public:
   virtual int             DeviceCount() SIDB_OVERRIDE;
 
   void                    EnsureInitialized();
-  void                    setWriteBufferSize(int bufferSize);
+  void                    SetWriteBufferSize(int bufferSize);
 
   ThreadCommandReceiver*  m_Receiver;
   std::thread             m_SIDWriteThread;

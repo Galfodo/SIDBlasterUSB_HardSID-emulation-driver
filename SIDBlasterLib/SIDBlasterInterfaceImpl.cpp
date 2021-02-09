@@ -173,14 +173,14 @@ SIDBlasterEnumerator::SIDBlasterEnumerator() {
 }
 
 SIDBlasterEnumerator::~SIDBlasterEnumerator() {
-	D2XXManager::destroy();
+	D2XXManager::Destroy();
 }
 
 int   
 SIDBlasterEnumerator::DeviceCount() {
   if (m_Manager == NULL) {
     //m_Manager = new D2XXManager();
-	D2XXManager* m_Manager = D2XXManager::getInstance();
+	D2XXManager* m_Manager = D2XXManager::GetInstance();
     m_Manager->Rescan();
     for (int i = 0; i < (int)m_Manager->Count(); ++i) {
       m_Devices.push_back(m_Manager->GetDevice(i));

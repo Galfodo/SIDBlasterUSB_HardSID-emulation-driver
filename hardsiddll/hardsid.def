@@ -24,6 +24,6 @@ EXPORTS
     HardSID_ExternalTiming @22
 	HardSID_GetSerial @23
 	HardSID_SetWriteBufferSize @24
-	HardSID_SetSIDInfo @25
-	HardSID_GetSIDInfo @26
+	HardSID_SetSIDType @25
+	HardSID_GetSIDType @26
 	

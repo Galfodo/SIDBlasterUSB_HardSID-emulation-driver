@@ -173,23 +173,20 @@ const char *D2XXDevice::GetDescription(void) {
   return info.Description;
 }
 
-int D2XXDevice::getSIDinfo(void) {
+SID_TYPE D2XXDevice::GetSIDType(void) {
 	if (strlen(info.Description) == 14) {
-		return 0;
+		return SID_TYPE_NONE;
 	}
 	else {
 		if (strlen(info.Description) == 19) {
-			char mytempstrg[19];
-			mytempstrg[0] = 0;
-			strncpy_s(mytempstrg, info.Description + 15, 4);
-			if (strcmp(mytempstrg, "6581") == 0) return 1;
-			if (strcmp(mytempstrg, "8580") == 0) return 2;
+			if (strcmp(info.Description + 15, "6581") == 0) return SID_TYPE_6581;
+			if (strcmp(info.Description + 15, "8580") == 0) return SID_TYPE_8580;
 		}
-		return 0;
+		return SID_TYPE_NONE;
 	}
 }
 
-int D2XXDevice::setSIDinfo(DWORD index, int sidtype) {
+int D2XXDevice::SetSIDType(DWORD index, SID_TYPE sidtype) {
 	
 	char Manufacturer[64];
 	char ManufacturerId[64];
@@ -208,13 +205,13 @@ int D2XXDevice::setSIDinfo(DWORD index, int sidtype) {
 	ft_status = FT_EEPROM_Read(handle, &ft_eeprom_232R, sizeof(ft_eeprom_232R),Manufacturer, ManufacturerId, Description, SerialNumber);
 	switch (sidtype)
 	{
-	case 0: 
+	case SID_TYPE_NONE:
 		strcpy_s(Description, "SIDBlaster/USB");
 		break;
-	case 1: 
+	case SID_TYPE_6581:
 		strcpy_s(Description, "SIDBlaster/USB/6581");
 		break;
-	case 2:
+	case SID_TYPE_8580:
 		strcpy_s(Description, "SIDBlaster/USB/8580");
 		break;
 	default:

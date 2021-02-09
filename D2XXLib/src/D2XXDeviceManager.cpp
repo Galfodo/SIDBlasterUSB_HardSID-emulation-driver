@@ -15,9 +15,7 @@ namespace D2XXLib
     assert (dev_info);
 
     //Check if the FTDI is a real Sidblaster
-	char myTempString[15];
-	strncpy_s(myTempString, 15, dev_info->Description, 14);
-    if (strcmp(myTempString, "SIDBlaster/USB") == 0) {
+	if (strncmp(dev_info->Description, "SIDBlaster/USB", 14) == 0) {
       return true;
     }
     else {
@@ -26,7 +24,7 @@ namespace D2XXLib
   }
   
   // Sort device list by seriaL number
-  bool sortBySerial(D2XXDevice * lhs, D2XXDevice * rhs)
+  bool SortBySerial(D2XXDevice * lhs, D2XXDevice * rhs)
   {	
 	  return (strcmp(lhs->GetSerialNumber(), rhs->GetSerialNumber()) < 0);
   }
@@ -51,7 +49,7 @@ namespace D2XXLib
               list->push_back(device);
             }
 		  }
-		  std::sort(list->begin(),list->end(),sortBySerial);
+		  std::sort(list->begin(),list->end(),SortBySerial);
         }
         delete[] ft_info_list;
       }
@@ -156,14 +154,14 @@ namespace D2XXLib
 
   D2XXManager* D2XXManager::instance = 0L;
 
-  D2XXManager* D2XXManager::getInstance()
+  D2XXManager* D2XXManager::GetInstance()
   {
 	  if (instance==0)
 		  instance = new D2XXManager();
 	  return instance;
   }
 
-  void D2XXManager::destroy()
+  void D2XXManager::Destroy()
   {
 	  delete instance;
 	  instance = 0;
@@ -174,13 +172,13 @@ namespace D2XXLib
 	  return(dev_list.at(index)->GetSerialNumber());
   }
 
-  int D2XXManager::GetSIDInfo(DWORD index)
+  SID_TYPE D2XXManager::GetSIDType(DWORD index)
   {
-	  return (dev_list.at(index)->getSIDinfo());
+	  return (dev_list.at(index)->GetSIDType());
   }
   
-  int D2XXManager::SetSIDInfo(DWORD index, int sidtype)
+  int D2XXManager::SetSIDType(DWORD index, SID_TYPE sidtype)
   {
-	  return (dev_list.at(index)->setSIDinfo(index, sidtype));
+	  return (dev_list.at(index)->SetSIDType(index, sidtype));
   }
 }

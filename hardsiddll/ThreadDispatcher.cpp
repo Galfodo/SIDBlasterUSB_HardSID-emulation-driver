@@ -60,7 +60,7 @@ ThreadFunction(ThreadCommandReceiver* receiver, bool* do_abort) {
 ThreadDispatcher::ThreadDispatcher() : m_Receiver(NULL), m_IsInitialized(false), m_AbortSIDWriteThread(false) {
 }
 
-void ThreadDispatcher::setWriteBufferSize(int bufferSize) {
+void ThreadDispatcher::SetWriteBufferSize(int bufferSize) {
 	m_bufferSize = bufferSize;
 }
 
@@ -141,7 +141,7 @@ void ThreadDispatcher::EnsureInitialized() {
     m_Receiver = new ThreadCommandReceiver();
     s_DeviceCount = -1;
     m_AbortSIDWriteThread = false;
-    m_Receiver->Initialize();
+    m_Receiver->Initialize(m_bufferSize);
     m_SIDWriteThread = std::thread(ThreadFunction, m_Receiver, &m_AbortSIDWriteThread);
     if (m_SIDWriteThread.joinable()) {
       while (s_DeviceCount < 0) {

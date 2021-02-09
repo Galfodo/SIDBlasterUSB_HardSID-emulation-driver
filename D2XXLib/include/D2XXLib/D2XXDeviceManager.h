@@ -25,8 +25,8 @@ namespace D2XXLib
     DWORD CreateDeviceList(D2XXDevicesList *list);
     void CleanList(D2XXDevicesList *list);
   public:
-	static D2XXManager* getInstance();
-	static void destroy();
+	static D2XXManager* GetInstance();
+	static void Destroy();
     DWORD Count(void);
     DWORD Rescan(void);
     D2XXDevice *GetDevice(DWORD index);
@@ -34,8 +34,8 @@ namespace D2XXLib
     void DisplayDevicesInfo(void);
     virtual void Update(Subject *subject);
 	const char* GetSerialNo(DWORD index);
-	int GetSIDInfo(DWORD index);
-	int SetSIDInfo(DWORD index, int sidtype);
+	SID_TYPE GetSIDType(DWORD index);
+	int SetSIDType(DWORD index, SID_TYPE sidtype);
   };
 
 }

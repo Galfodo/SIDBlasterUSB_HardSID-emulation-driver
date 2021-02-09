@@ -26,7 +26,7 @@ typedef unsigned char Uint8;
 typedef unsigned short Uint16;
 typedef unsigned char boolean;
 
-D2XXLib::D2XXManager* x_Manager = D2XXLib::D2XXManager::getInstance();
+D2XXLib::D2XXManager* x_Manager = D2XXLib::D2XXManager::GetInstance();
 
 // Command despatcher is defined in a different file, depending on mode of operation: standalone dll or winhost
 extern SIDBlaster::CommandDispatcher
@@ -191,20 +191,19 @@ extern "C" {
 	// ***********************************************0x203****************************************************
 	
 	void DLLEXPORT HardSID_SetWriteBufferSize(Uint8 bufferSize) {
-		g_CommandDispatcher->setWriteBufferSize(bufferSize);
+		g_CommandDispatcher->SetWriteBufferSize(bufferSize);
 	}
 	
-	// sidtype:
-	// 0 none
-	// 1 6581
-	// 2 8580
-	// this function is "death end", host program must terminate after call and the sidblaster must reconnect
-	int DLLEXPORT HardSID_SetSIDInfo(Uint8 DeviceID, int sidtype) { //returns success
-		return x_Manager->SetSIDInfo(DeviceID, sidtype);
+	// set and get type of SID via device description string
+	//sidtype:	SID_TYPE_NONE = 0, SID_TYPE_6581 = 1, SID_TYPE_8580 = 2
+
+	//this function is "death end", host program must terminate after call and the sidblaster must reconnect
+	int DLLEXPORT HardSID_SetSIDType(Uint8 DeviceID, SID_TYPE sidtype) { //returns success
+		return x_Manager->SetSIDType(DeviceID, sidtype);
 	}
 
-	int DLLEXPORT HardSID_GetSIDInfo(Uint8 DeviceID) { //returns sidtype
-		return x_Manager->GetSIDInfo(DeviceID);
+	SID_TYPE DLLEXPORT HardSID_GetSIDType(Uint8 DeviceID) {
+		return x_Manager->GetSIDType(DeviceID);
 	}
 
 
