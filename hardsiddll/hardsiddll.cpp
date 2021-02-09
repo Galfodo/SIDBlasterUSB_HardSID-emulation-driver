@@ -206,5 +206,4 @@ extern "C" {
 		return x_Manager->GetSIDType(DeviceID);
 	}
 
-
 }

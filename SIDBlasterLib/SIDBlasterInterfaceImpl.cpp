@@ -169,7 +169,7 @@ SIDBlasterInterfaceImpl::SoftFlush() {
 }
 
 SIDBlasterEnumerator::SIDBlasterEnumerator() {
-  m_Manager = NULL;
+  
 }
 
 SIDBlasterEnumerator::~SIDBlasterEnumerator() {
@@ -178,16 +178,13 @@ SIDBlasterEnumerator::~SIDBlasterEnumerator() {
 
 int   
 SIDBlasterEnumerator::DeviceCount() {
-  if (m_Manager == NULL) {
-    //m_Manager = new D2XXManager();
-	D2XXManager* m_Manager = D2XXManager::GetInstance();
-    m_Manager->Rescan();
-    for (int i = 0; i < (int)m_Manager->Count(); ++i) {
-      m_Devices.push_back(m_Manager->GetDevice(i));
+	D2XXManager* manager = D2XXManager::GetInstance();
+    manager->Rescan();
+    for (int i = 0; i < (int)manager->Count(); ++i) {
+      m_Devices.push_back(manager->GetDevice(i));
       m_DevicesAllocated.push_back(false);
     }
-  }
-  return (int)m_Devices.size() + DebugSIDBlasterEnumerator::Instance()->DeviceCount();
+   return (int)m_Devices.size() + DebugSIDBlasterEnumerator::Instance()->DeviceCount();
 }
 
 SIDBlasterInterface* 

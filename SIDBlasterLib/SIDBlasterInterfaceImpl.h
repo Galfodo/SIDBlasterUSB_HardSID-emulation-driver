@@ -60,8 +60,7 @@ public:
 private:
                         SIDBlasterEnumerator();
                         ~SIDBlasterEnumerator();
-  D2XXLib::D2XXManager* m_Manager;
-
+  
   std::vector<D2XXLib::D2XXDevice*>
                         m_Devices;
   std::vector<bool>     m_DevicesAllocated;
