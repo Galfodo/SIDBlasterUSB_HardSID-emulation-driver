@@ -195,7 +195,9 @@ extern "C" {
 	}
 	
 	// set and get type of SID via device description string
-	//sidtype:	SID_TYPE_NONE = 0, SID_TYPE_6581 = 1, SID_TYPE_8580 = 2
+	/*enum SID_TYPE {
+		SID_TYPE_NONE = 0, SID_TYPE_6581, SID_TYPE_8580
+	};*/
 
 	//this function is "death end", host program must terminate after call and the sidblaster must reconnect
 	int DLLEXPORT HardSID_SetSIDType(Uint8 DeviceID, SID_TYPE sidtype) { //returns success
