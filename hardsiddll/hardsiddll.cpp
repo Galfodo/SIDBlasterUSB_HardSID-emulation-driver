@@ -200,12 +200,13 @@ extern "C" {
 	};*/
 
 	//this function is "death end", host program must terminate after call and the sidblaster must reconnect
-	int DLLEXPORT HardSID_SetSIDType(Uint8 DeviceID, SID_TYPE sidtype) { //returns success
-		return x_Manager->SetSIDType(DeviceID, sidtype);
+	int DLLEXPORT HardSID_SetSIDType(Uint8 DeviceID, int sidtype_) { //returns 0 for success
+	  auto sidtype = (SID_TYPE)sidtype_; // Erroneous values are handled in the manager SetSIDType() function
+	  return x_Manager->SetSIDType(DeviceID, sidtype);
 	}
 
-	SID_TYPE DLLEXPORT HardSID_GetSIDType(Uint8 DeviceID) {
-		return x_Manager->GetSIDType(DeviceID);
+	int DLLEXPORT HardSID_GetSIDType(Uint8 DeviceID) {
+		return (int)x_Manager->GetSIDType(DeviceID);
 	}
 
 }
