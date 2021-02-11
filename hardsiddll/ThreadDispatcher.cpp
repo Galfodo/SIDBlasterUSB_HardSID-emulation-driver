@@ -57,7 +57,7 @@ ThreadFunction(ThreadCommandReceiver* receiver, bool* do_abort) {
   receiver->ExecuteCommand(closecommand);
 }
 
-ThreadDispatcher::ThreadDispatcher() : m_Receiver(NULL), m_IsInitialized(false), m_AbortSIDWriteThread(false) {
+ThreadDispatcher::ThreadDispatcher() : m_Receiver(NULL), m_IsInitialized(false), m_AbortSIDWriteThread(false), m_bufferSize(SIDBlasterInterface::DEFAULT_WRITE_BUFFER_SIZE) {
 }
 
 void ThreadDispatcher::SetWriteBufferSize(int bufferSize) {

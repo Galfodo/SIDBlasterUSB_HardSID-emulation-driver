@@ -37,6 +37,7 @@ CommandReceiver::Initialize(int bufferSize) {
   m_ReadResult                      = 0;
   m_CPUcycleDuration                = ratio_t::den / PAL_CLOCK;
   m_InvCPUcycleDurationNanoSeconds  = 1.0 / (1000000000 / PAL_CLOCK);
+
   ResetTimer();
   int tdc = SIDBlasterEnumerator::Instance()->DeviceCount();
   for (int i = 0; i < tdc; ++i) {
