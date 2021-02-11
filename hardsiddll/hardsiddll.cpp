@@ -184,8 +184,8 @@ extern "C" {
 	}
 
 	// ***********************************************0x202****************************************************
-	void DLLEXPORT HardSID_GetSerial(Uint8 DeviceID, char* output) {
-		strncpy_s(output, 9, (char*)x_Manager->GetSerialNo(DeviceID), 8);
+	void DLLEXPORT HardSID_GetSerial(char* output, int bufferSize, Uint8 DeviceID) {
+		strncpy_s(output, bufferSize, (char*)x_Manager->GetSerialNo(DeviceID), 8);
 	}
 	
 	// ***********************************************0x203****************************************************
