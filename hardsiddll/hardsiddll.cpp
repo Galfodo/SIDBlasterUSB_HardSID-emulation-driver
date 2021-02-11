@@ -199,7 +199,8 @@ extern "C" {
 		SID_TYPE_NONE = 0, SID_TYPE_6581, SID_TYPE_8580
 	};*/
 
-	//this function is "death end", host program must terminate after call and the sidblaster must reconnect
+	// NB! writes SID type to device
+	// this function is "death end", host program must terminate after call and the sidblaster must reconnect
 	int DLLEXPORT HardSID_SetSIDType(Uint8 DeviceID, int sidtype_) { //returns 0 for success
 	  auto sidtype = (SID_TYPE)sidtype_; // Erroneous values are handled in the manager SetSIDType() function
 	  return x_Manager->SetSIDType(DeviceID, sidtype);
