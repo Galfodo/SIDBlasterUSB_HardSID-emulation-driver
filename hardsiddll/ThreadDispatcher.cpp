@@ -57,7 +57,11 @@ ThreadFunction(ThreadCommandReceiver* receiver, bool* do_abort) {
   receiver->ExecuteCommand(closecommand);
 }
 
-ThreadDispatcher::ThreadDispatcher() : m_Receiver(NULL), m_IsInitialized(false), m_AbortSIDWriteThread(false) {
+ThreadDispatcher::ThreadDispatcher() : m_Receiver(NULL), m_IsInitialized(false), m_AbortSIDWriteThread(false), m_bufferSize(SIDBlasterInterface::DEFAULT_WRITE_BUFFER_SIZE) {
+}
+
+void ThreadDispatcher::SetWriteBufferSize(int bufferSize) {
+	m_bufferSize = bufferSize;
 }
 
 int
@@ -137,7 +141,7 @@ void ThreadDispatcher::EnsureInitialized() {
     m_Receiver = new ThreadCommandReceiver();
     s_DeviceCount = -1;
     m_AbortSIDWriteThread = false;
-    m_Receiver->Initialize();
+    m_Receiver->Initialize(m_bufferSize);
     m_SIDWriteThread = std::thread(ThreadFunction, m_Receiver, &m_AbortSIDWriteThread);
     if (m_SIDWriteThread.joinable()) {
       while (s_DeviceCount < 0) {

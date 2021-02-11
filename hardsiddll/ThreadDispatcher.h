@@ -22,12 +22,14 @@ public:
   virtual int             DeviceCount() SIDB_OVERRIDE;
 
   void                    EnsureInitialized();
+  void                    SetWriteBufferSize(int bufferSize);
 
   ThreadCommandReceiver*  m_Receiver;
   std::thread             m_SIDWriteThread;
   std::mutex              m_SIDWriteThreadMutex;
   bool                    m_AbortSIDWriteThread;
   bool                    m_IsInitialized;
+  int                     m_bufferSize;
 };
 
 }

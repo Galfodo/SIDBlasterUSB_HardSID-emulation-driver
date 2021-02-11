@@ -31,10 +31,9 @@ typedef __int64 int64;
 class SIDBlasterInterface
 {
 public:
-  enum
-  {
-    MAX_WRITE_BUFFER_SIZE = 256
-  };
+  static constexpr int MIN_WRITE_BUFFER_SIZE = 0;
+  static constexpr int MAX_WRITE_BUFFER_SIZE = 256;
+  static constexpr int DEFAULT_WRITE_BUFFER_SIZE = 16;
 
   virtual       ~SIDBlasterInterface();
   virtual void  Open() = 0;

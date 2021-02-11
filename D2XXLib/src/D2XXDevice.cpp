@@ -173,6 +173,56 @@ const char *D2XXDevice::GetDescription(void) {
   return info.Description;
 }
 
+SID_TYPE D2XXDevice::GetSIDType(void) {
+	if (strlen(info.Description) == 14) {
+		return SID_TYPE_NONE;
+	}
+	else {
+		if (strlen(info.Description) == 19) {
+			if (strcmp(info.Description + 15, "6581") == 0) return SID_TYPE_6581;
+			if (strcmp(info.Description + 15, "8580") == 0) return SID_TYPE_8580;
+		}
+		return SID_TYPE_NONE;
+	}
+}
+
+int D2XXDevice::SetSIDType(DWORD index, SID_TYPE sidtype) {
+	
+	char Manufacturer[64];
+	char ManufacturerId[64];
+	char Description[64];
+	char SerialNumber[64];
+	
+	FT_EEPROM_HEADER ft_eeprom_header;
+	ft_eeprom_header.deviceType = FT_DEVICE_232R; // FTxxxx device type to be accessed
+	FT_EEPROM_232R ft_eeprom_232R;
+	ft_eeprom_232R.common = ft_eeprom_header;
+	ft_eeprom_232R.common.deviceType = FT_DEVICE_232R;
+	
+	if (!IsOpen()) {
+		OpenByIndex(index);
+	}
+	ft_status = FT_EEPROM_Read(handle, &ft_eeprom_232R, sizeof(ft_eeprom_232R),Manufacturer, ManufacturerId, Description, SerialNumber);
+	switch (sidtype)
+	{
+	case SID_TYPE_NONE:
+		strcpy_s(Description, "SIDBlaster/USB");
+		break;
+	case SID_TYPE_6581:
+		strcpy_s(Description, "SIDBlaster/USB/6581");
+		break;
+	case SID_TYPE_8580:
+		strcpy_s(Description, "SIDBlaster/USB/8580");
+		break;
+	default:
+		return 1;
+	}
+
+	ft_status = FT_EEPROM_Program(handle, &ft_eeprom_232R, sizeof(ft_eeprom_232R), Manufacturer, ManufacturerId, Description, SerialNumber);
+		
+	return ft_status;
+}
+
 void D2XXDevice::DisplayInfo(void) {
   char *dev_type_str[] = {"232BM", "232AM", "100AX", "UNKNOWN", "2232C", "232R", "2232H", "4232H", "232H"};
 
@@ -181,7 +231,7 @@ void D2XXDevice::DisplayInfo(void) {
   printf("%18s%s\n",      "Description: ",    info.Description);
   printf("%18s0x%08X\n",  "VID&PID: ",        info.ID);
   printf("%18s%d\n",      "Is opened: ",      (info.Flags & FT_FLAGS_OPENED));
-  printf("%18s0x%p\n",    "Handle: ",         (void*)info.ftHandle);
+  printf("%18s0x%p\n",    "Handle: ",         (void *)info.ftHandle);
   printf("%18s0x%08X\n",  "Location ID: ",    info.LocId);
 }
 

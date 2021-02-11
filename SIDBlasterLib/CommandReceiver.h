@@ -18,7 +18,7 @@ public:
                         CommandReceiver();
                         ~CommandReceiver();
   int                   ExecuteCommand(CommandParams const& command);
-  void                  Initialize();
+  void                  Initialize(int bufferSize);
   void                  Uninitialize();
   void                  ResetTimer();
   int                   WaitForCycle(int cycle);

@@ -8,9 +8,13 @@
 #define NOMINMAX
 #include <Windows.h>
 #endif
-#include "ftd2xx.h"
+#include "..\include\ftd2xx.h"
 #include "Utilities.h"
 #include <vector>
+
+enum SID_TYPE {
+	SID_TYPE_NONE = 0, SID_TYPE_6581, SID_TYPE_8580
+};
 
 namespace D2XXLib {
 
@@ -49,6 +53,8 @@ public:
   DWORD GetLocationID(void);
   const char *GetSerialNumber(void);
   const char *GetDescription(void);
+  SID_TYPE GetSIDType(void);
+  int SetSIDType(DWORD index, SID_TYPE sidtype);
   void DisplayInfo(void);
   DWORD Send(std::vector<unsigned char> const& data);
   DWORD Send(unsigned char const* data, size_t size);

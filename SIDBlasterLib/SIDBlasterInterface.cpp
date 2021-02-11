@@ -3,9 +3,6 @@
 // Use WaitForSingleObject for long waits
 #define USE_MSEC_WAIT 1 
 
-// Default size of device write buffer
-#define WRITEBUFFER_DEFAULT_SIZE 16
-
 #define NOMINMAX
 
 #include "SIDBlasterInterface.h"
@@ -18,7 +15,7 @@ namespace SIDBlaster {
 
 SIDBlasterInterface::SIDBlasterInterface(ILogger* logger, int deviceID) {
   assert(logger);
-  m_WriteBufferSize = WRITEBUFFER_DEFAULT_SIZE;
+  m_WriteBufferSize = DEFAULT_WRITE_BUFFER_SIZE;
   m_Logger = logger;
   m_DeviceID = deviceID;
 }
@@ -27,7 +24,7 @@ SIDBlasterInterface::~SIDBlasterInterface() {
 }
 
 void SIDBlasterInterface::SetWriteBufferSize(int size) {
-  m_WriteBufferSize = std::max(0, std::min(size, (int)MAX_WRITE_BUFFER_SIZE));
+  m_WriteBufferSize = std::max(MIN_WRITE_BUFFER_SIZE, std::min(size, MAX_WRITE_BUFFER_SIZE));
 }
 
 }
