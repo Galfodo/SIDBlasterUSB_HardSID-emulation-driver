@@ -6,18 +6,29 @@
 #define NOMINMAX
 #include <stdio.h>
 #include <string.h>
-#include <windows.h>
+#ifdef WIN32
+  #include <windows.h>
+#endif
+
 #include <thread>
 #include "CommandDispatcher.h"
-#include "..\D2XXLib\include\D2XXLib\D2XXDevice.h"
-#include "..\D2XXLib\include\D2XXLib\D2XXDeviceManager.h"
+#include "../D2XXLib/include/D2XXLib/D2XXDevice.h"
+#include "../D2XXLib/include/D2XXLib/D2XXDeviceManager.h"
+
+#if defined linux || defined __APPLE__
+  #include "ThreadDispatcher.h"
+  #include "SyncDispatcher.h"
+  #include "DriverDefs.h"
+#endif
 
 using namespace SIDBlaster;
 
-#ifdef _MSC_VER
-#define DLLEXPORT __stdcall // We're using a .def file to create undecorated names with __stdcall calling convention
+#if defined linux || __APPLE__
+  #define DLLEXPORT __attribute__((visibility("default")))
+#elif _MSC_VER
+  #define DLLEXPORT __stdcall // We're using a .def file to create undecorated names with __stdcall calling convention
 #else
-#define DLLEXPORT __declspec(dllexport) __stdcall
+  #define DLLEXPORT __declspec(dllexport) __stdcall
 #endif
 
 #define HARDSID_VERSION      0x0203
@@ -28,9 +39,23 @@ typedef unsigned char boolean;
 
 D2XXLib::D2XXManager* x_Manager = D2XXLib::D2XXManager::GetInstance();
 
-// Command despatcher is defined in a different file, depending on mode of operation: standalone dll or winhost
-extern SIDBlaster::CommandDispatcher
-  *g_CommandDispatcher;
+#ifdef WIN32
+  // Command despatcher is defined in a different file, depending on mode of operation: standalone dll or winhost
+  extern SIDBlaster::CommandDispatcher
+    *g_CommandDispatcher;
+#elif defined(linux) || defined(__APPLE__)
+  CommandDispatcher  *g_CommandDispatcher;
+
+  // Linux way of DLLMain ;-)
+  __attribute__((constructor)) void dllLoad() {
+#ifdef USE_ASYNC_INTERFACE
+    g_CommandDispatcher = new SIDBlaster::ThreadDispatcher();
+#else
+    g_CommandDispatcher = new SIDBlaster::SyncDispatcher();
+#endif
+    g_CommandDispatcher->Initialize();
+  }
+#endif
 
 extern "C" {
 
@@ -185,7 +210,11 @@ extern "C" {
 
 	// ***********************************************0x202****************************************************
 	void DLLEXPORT HardSID_GetSerial(char* output, int bufferSize, Uint8 DeviceID) {
+#ifdef WIN32
 		strncpy_s(output, bufferSize, (char*)x_Manager->GetSerialNo(DeviceID), 8);
+#elif defined linux || defined __APPLE__
+		strncpy(output, (char*)x_Manager->GetSerialNo(DeviceID), 8);
+#endif
 	}
 	
 	// ***********************************************0x203****************************************************

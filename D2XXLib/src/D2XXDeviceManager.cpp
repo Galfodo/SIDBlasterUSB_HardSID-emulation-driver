@@ -8,6 +8,10 @@
 #include <assert.h>
 #include <algorithm>
 
+#ifdef linux
+  #include <string.h>
+#endif
+
 namespace D2XXLib
 {
   bool D2XXManager::IsValidDeviceInfo(FT_DEVICE_LIST_INFO_NODE *dev_info)

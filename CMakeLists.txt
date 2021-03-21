@@ -5,6 +5,8 @@ project(hardsid)
 add_subdirectory(D2XXLib)
 add_subdirectory(SIDBlasterLib)
 
+set(CMAKE_CXX_STANDARD 11)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(FTD2XX REQUIRED)
 
@@ -27,10 +29,14 @@ if (WIN32)
 		${CMAKE_CURRENT_SOURCE_DIR}/hardsiddll/hardsid.def
 	)
 endif ()
+
 add_library(hardsid SHARED 
 	${hardsid_SOURCES}
 	${hardsid_EXTRA_SOURCES}
 )
+
+set_property(TARGET hardsid PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 target_include_directories(hardsid PUBLIC
   ${FTD2XX_INCLUDE_DIR}
 )

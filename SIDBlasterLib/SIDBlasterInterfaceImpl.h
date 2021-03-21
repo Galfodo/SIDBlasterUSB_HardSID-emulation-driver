@@ -43,7 +43,7 @@ private:
   int                   m_DeviceID;
   bool                  m_isOpen;
 
-  byte                  m_WriteBuffer[MAX_WRITE_BUFFER_SIZE * 2];
+  byte                  m_WriteBuffer[maxWriteBufferSize() * 2];
   int                   m_WritePos;
 
   friend class SIDBlasterEnumerator;

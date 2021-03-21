@@ -10,6 +10,12 @@
 #include <vector>
 #include <assert.h>
 
+#if defined linux || __APPLE__
+  #include <cstring>
+  #include <stdint.h>
+  #define strcpy_s strcpy
+#endif
+
 #define FT_OPEN_BY_INDEX  8
 
 #define FT_READ_TIMEOUT   1000
@@ -224,7 +230,7 @@ int D2XXDevice::SetSIDType(DWORD index, SID_TYPE sidtype) {
 }
 
 void D2XXDevice::DisplayInfo(void) {
-  char *dev_type_str[] = {"232BM", "232AM", "100AX", "UNKNOWN", "2232C", "232R", "2232H", "4232H", "232H"};
+  const char *dev_type_str[] = {"232BM", "232AM", "100AX", "UNKNOWN", "2232C", "232R", "2232H", "4232H", "232H"};
 
   printf("%18s%s\n",      "FT Device type: ", dev_type_str[info.Type]);
   printf("%18s%s\n",      "Serial number: ",  info.SerialNumber);

@@ -4,6 +4,8 @@
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#elif linux
+  #include <inttypes.h>
 #endif
 
 #include "ILogger.h"
@@ -20,7 +22,9 @@ namespace SIDBlaster {
 
 typedef unsigned char byte;
 #ifdef _MSC_VER
-typedef __int64 int64;
+  typedef __int64 int64;
+#elif defined linux || __APPLE__
+  typedef int64_t int64;
 #else
 #error "need int64 typedef"
 #endif
@@ -31,8 +35,11 @@ typedef __int64 int64;
 class SIDBlasterInterface
 {
 public:
-  static constexpr int MIN_WRITE_BUFFER_SIZE = 0;
-  static constexpr int MAX_WRITE_BUFFER_SIZE = 256;
+  // https://stackoverflow.com/questions/40690260/undefined-reference-error-for-static-constexpr-member
+  //static constexpr int MIN_WRITE_BUFFER_SIZE = 0;
+  static constexpr int minWriteBufferSize() { return 0; };
+  //static constexpr int MAX_WRITE_BUFFER_SIZE = 256;
+  static constexpr int maxWriteBufferSize() { return 256; };
   static constexpr int DEFAULT_WRITE_BUFFER_SIZE = 16;
 
   virtual       ~SIDBlasterInterface();
