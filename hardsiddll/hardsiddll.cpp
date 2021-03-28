@@ -239,4 +239,8 @@ extern "C" {
 		return (int)x_Manager->GetSIDType(DeviceID);
 	}
 
+        int DLLEXPORT HardSID_SetSerial(Uint8 DeviceID, const char *SerialNo) { //returns 0 for success
+          return x_Manager->SetSerialNo(DeviceID, SerialNo);
+        }
+
 }

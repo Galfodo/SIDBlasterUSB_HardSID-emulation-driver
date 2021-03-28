@@ -185,4 +185,9 @@ namespace D2XXLib
   {
 	  return (dev_list.at(index)->SetSIDType(index, sidtype));
   }
+
+  int D2XXManager::SetSerialNo(DWORD index, const char *serialNo)
+  {
+	  return (dev_list.at(index)->SetSerialNo(index, serialNo));
+  }
 }

@@ -26,4 +26,5 @@ EXPORTS
 	HardSID_SetWriteBufferSize @24
 	HardSID_SetSIDType @25
 	HardSID_GetSIDType @26
+	HardSID_Setserial @27
 	

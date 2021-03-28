@@ -69,6 +69,8 @@ int HardSID_SetSIDType(Uint8 DeviceID, int sidtype_);
 
 int HardSID_GetSIDType(Uint8 DeviceID);
 
+int HardSID_SetSerial(Uint8 DeviceID, const char *SerialNo);
+
 #ifdef __cplusplus
 }
 #endif

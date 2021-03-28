@@ -229,6 +229,35 @@ int D2XXDevice::SetSIDType(DWORD index, SID_TYPE sidtype) {
 	return ft_status;
 }
 
+int D2XXDevice::SetSerialNo(DWORD index, const char *serialNo) {
+	
+	char Manufacturer[64];
+	char ManufacturerId[64];
+	char Description[64];
+	char SerialNumber[64];
+	
+	FT_EEPROM_HEADER ft_eeprom_header;
+	ft_eeprom_header.deviceType = FT_DEVICE_232R; // FTxxxx device type to be accessed
+	FT_EEPROM_232R ft_eeprom_232R;
+	ft_eeprom_232R.common = ft_eeprom_header;
+	ft_eeprom_232R.common.deviceType = FT_DEVICE_232R;
+	
+	if (!IsOpen()) {
+		OpenByIndex(index);
+	}
+	ft_status = FT_EEPROM_Read(handle, &ft_eeprom_232R, sizeof(ft_eeprom_232R),Manufacturer, ManufacturerId, Description, SerialNumber);
+
+#ifdef WIN32
+        strncpy_s(SerialNumber, 64, serialNo, 8);
+#elif defined linux || __APPLE__
+        strncpy(SerialNumber, serialNo, 8);
+#endif
+
+	ft_status = FT_EEPROM_Program(handle, &ft_eeprom_232R, sizeof(ft_eeprom_232R), Manufacturer, ManufacturerId, Description, SerialNumber);
+		
+	return ft_status;
+}
+
 void D2XXDevice::DisplayInfo(void) {
   const char *dev_type_str[] = {"232BM", "232AM", "100AX", "UNKNOWN", "2232C", "232R", "2232H", "4232H", "232H"};
 

@@ -55,6 +55,7 @@ public:
   const char *GetDescription(void);
   SID_TYPE GetSIDType(void);
   int SetSIDType(DWORD index, SID_TYPE sidtype);
+  int SetSerialNo(DWORD index, const char *serialNo);
   void DisplayInfo(void);
   DWORD Send(std::vector<unsigned char> const& data);
   DWORD Send(unsigned char const* data, size_t size);
