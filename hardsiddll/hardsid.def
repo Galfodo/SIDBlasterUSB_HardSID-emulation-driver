@@ -27,4 +27,5 @@ EXPORTS
 	HardSID_SetSIDType @25
 	HardSID_GetSIDType @26
 	HardSID_Setserial @27
+	HardSID_Uninitialize @28
 	

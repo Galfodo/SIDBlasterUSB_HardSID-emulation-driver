@@ -10,6 +10,8 @@ typedef unsigned char Uint8;
 typedef unsigned short Uint16;
 typedef unsigned char boolean;
 
+void HardSID_Uninitialize();
+
 Uint8 HardSID_Read(Uint8 DeviceID, int Cycles, Uint8 SID_reg);
 
 Uint16 HardSID_Version(void);

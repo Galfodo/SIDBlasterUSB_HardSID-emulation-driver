@@ -59,6 +59,13 @@ D2XXLib::D2XXManager* x_Manager = D2XXLib::D2XXManager::GetInstance();
 
 extern "C" {
 
+        // replacement of dllUnload for Linux and macOSX
+        void DLLEXPORT HardSID_Uninitialize(void) {
+#if defined linux || __APPLE__
+          g_CommandDispatcher->Uninitialize();
+#endif
+        }
+
 	Uint8 DLLEXPORT HardSID_Read(Uint8 DeviceID, int Cycles, Uint8 SID_reg);
 
 	Uint16 DLLEXPORT HardSID_Version(void) {
