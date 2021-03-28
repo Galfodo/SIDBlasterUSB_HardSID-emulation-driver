@@ -46,3 +46,11 @@ target_link_libraries(hardsid
   ${FTD2XX_LIBRARY}
   ${hardsid_EXTRA_LIBRARIES}
 )
+
+if (APPLE)
+    add_custom_command(TARGET hardsid 
+        POST_BUILD COMMAND 
+        ${CMAKE_INSTALL_NAME_TOOL} -change libftd2xx.dylib /usr/local/lib/libftd2xx.dylib
+        $<TARGET_FILE:hardsid>)
+endif ()
+

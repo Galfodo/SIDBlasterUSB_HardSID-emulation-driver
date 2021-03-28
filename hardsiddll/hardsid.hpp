@@ -14,6 +14,8 @@ Uint8 HardSID_Read(Uint8 DeviceID, int Cycles, Uint8 SID_reg);
 
 Uint16 HardSID_Version(void);
 
+Uint8 HardSID_Devices(void);
+
 void HardSID_Delay(Uint8 DeviceID, Uint16 Cycles);
 
 void HardSID_Write(Uint8 DeviceID, int Cycles, Uint8 SID_reg, Uint8 Data);
