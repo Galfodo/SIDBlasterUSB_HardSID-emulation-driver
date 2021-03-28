@@ -54,3 +54,4 @@ if (APPLE)
         $<TARGET_FILE:hardsid>)
 endif ()
 
+add_custom_command(TARGET hardsid POST_BUILD COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/hardsiddll/hardsid.hpp ${PROJECT_BINARY_DIR})
