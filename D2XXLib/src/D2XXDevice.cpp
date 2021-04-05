@@ -194,11 +194,6 @@ SID_TYPE D2XXDevice::GetSIDType(void) {
 
 int D2XXDevice::SetSIDType(DWORD index, SID_TYPE sidtype) {
 	
-	char Manufacturer[32];
-	char ManufacturerId[16];
-	char Description[64];
-	char SerialNumber[16];
-	
 	FT_PROGRAM_DATA mypdata;
 	char ManufacturerBuf[32];
 	char ManufacturerIdBuf[16];
@@ -217,33 +212,28 @@ int D2XXDevice::SetSIDType(DWORD index, SID_TYPE sidtype) {
 	if (!IsOpen()) {
 		OpenByIndex(index);
 	}
-	ft_status = FT_EE_ReadEx(handle,&mypdata,Manufacturer, ManufacturerId, Description, SerialNumber);
+	ft_status = FT_EE_Read(handle,&mypdata);
 	switch (sidtype)
 	{
 	case SID_TYPE_NONE:
-		strcpy_s(Description, "SIDBlaster/USB");
+		strcpy_s(DescriptionBuf, "SIDBlaster/USB");
 		break;
 	case SID_TYPE_6581:
-		strcpy_s(Description, "SIDBlaster/USB/6581");
+		strcpy_s(DescriptionBuf, "SIDBlaster/USB/6581");
 		break;
 	case SID_TYPE_8580:
-		strcpy_s(Description, "SIDBlaster/USB/8580");
+		strcpy_s(DescriptionBuf, "SIDBlaster/USB/8580");
 		break;
 	default:
 		return 1;
 	}
 
-	ft_status = FT_EE_ProgramEx(handle, &mypdata, Manufacturer, ManufacturerId, Description, SerialNumber);
+	ft_status = FT_EE_Program(handle, &mypdata);
 	
 	return ft_status;
 }
 
 int D2XXDevice::SetSerialNo(DWORD index, const char *serialNo) {
-	
-	char Manufacturer[32];
-	char ManufacturerId[16];
-	char Description[64];
-	char SerialNumber[16];
 
 	FT_PROGRAM_DATA mypdata;
 	char ManufacturerBuf[32];
@@ -263,15 +253,15 @@ int D2XXDevice::SetSerialNo(DWORD index, const char *serialNo) {
 	if (!IsOpen()) {
 		OpenByIndex(index);
 	}
-	ft_status = FT_EE_ReadEx(handle, &mypdata, Manufacturer, ManufacturerId, Description, SerialNumber);
+	ft_status = FT_EE_Read(handle, &mypdata);
 
 #ifdef WIN32
-        strncpy_s(SerialNumber, 64, serialNo, 8);
+        strncpy_s(SerialNumberBuf, 16, serialNo, 8);
 #elif defined linux || __APPLE__
-        strncpy(SerialNumber, serialNo, 8);
+        strncpy(SerialNumberBuf, serialNo, 8);
 #endif
 
-	ft_status = FT_EE_ProgramEx(handle, &mypdata, Manufacturer, ManufacturerId, Description, SerialNumber);
+	ft_status = FT_EE_Program(handle, &mypdata);
 	
 	return ft_status;
 }
