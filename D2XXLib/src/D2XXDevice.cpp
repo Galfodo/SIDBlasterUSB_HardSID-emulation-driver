@@ -9,6 +9,15 @@
 #include <stdio.h>
 #include <vector>
 #include <assert.h>
+#include <thread>
+#include <chrono>
+
+
+#if defined linux || __APPLE__
+  #include <cstring>
+  #include <stdint.h>
+  #define strcpy_s strcpy
+#endif
 
 #define FT_OPEN_BY_INDEX  8
 
@@ -188,43 +197,94 @@ SID_TYPE D2XXDevice::GetSIDType(void) {
 
 int D2XXDevice::SetSIDType(DWORD index, SID_TYPE sidtype) {
 	
-	char Manufacturer[64];
-	char ManufacturerId[64];
-	char Description[64];
-	char SerialNumber[64];
+	FT_PROGRAM_DATA mypdata;
+	char ManufacturerBuf[32];
+	char ManufacturerIdBuf[16];
+	char DescriptionBuf[64];
+	char SerialNumberBuf[16];
 	
-	FT_EEPROM_HEADER ft_eeprom_header;
-	ft_eeprom_header.deviceType = FT_DEVICE_232R; // FTxxxx device type to be accessed
-	FT_EEPROM_232R ft_eeprom_232R;
-	ft_eeprom_232R.common = ft_eeprom_header;
-	ft_eeprom_232R.common.deviceType = FT_DEVICE_232R;
-	
+	mypdata.Signature1 = 0x00000000;
+	mypdata.Signature2 = 0xffffffff;
+	mypdata.Version = 0x00000002;
+
+	mypdata.Manufacturer = ManufacturerBuf;
+	mypdata.ManufacturerId = ManufacturerIdBuf;
+	mypdata.Description = DescriptionBuf;
+	mypdata.SerialNumber = SerialNumberBuf;
+
 	if (!IsOpen()) {
 		OpenByIndex(index);
 	}
-	ft_status = FT_EEPROM_Read(handle, &ft_eeprom_232R, sizeof(ft_eeprom_232R),Manufacturer, ManufacturerId, Description, SerialNumber);
+	ft_status = FT_EE_Read(handle,&mypdata);
+
+        if (ft_status != FT_OK) {
+          return 1;
+        }
+
 	switch (sidtype)
 	{
 	case SID_TYPE_NONE:
-		strcpy_s(Description, "SIDBlaster/USB");
+		strcpy_s(DescriptionBuf, "SIDBlaster/USB");
 		break;
 	case SID_TYPE_6581:
-		strcpy_s(Description, "SIDBlaster/USB/6581");
+		strcpy_s(DescriptionBuf, "SIDBlaster/USB/6581");
 		break;
 	case SID_TYPE_8580:
-		strcpy_s(Description, "SIDBlaster/USB/8580");
+		strcpy_s(DescriptionBuf, "SIDBlaster/USB/8580");
 		break;
 	default:
 		return 1;
 	}
 
-	ft_status = FT_EEPROM_Program(handle, &ft_eeprom_232R, sizeof(ft_eeprom_232R), Manufacturer, ManufacturerId, Description, SerialNumber);
-		
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+	ft_status = FT_EE_Program(handle, &mypdata);
+	
+	return ft_status;
+}
+
+int D2XXDevice::SetSerialNo(DWORD index, const char *serialNo) {
+
+	FT_PROGRAM_DATA mypdata;
+	char ManufacturerBuf[32];
+	char ManufacturerIdBuf[16];
+	char DescriptionBuf[64];
+	char SerialNumberBuf[16];
+        memset(SerialNumberBuf, '\0', 16);
+
+	mypdata.Signature1 = 0x00000000;
+	mypdata.Signature2 = 0xffffffff;
+	mypdata.Version = 0x00000002;
+
+	mypdata.Manufacturer = ManufacturerBuf;
+	mypdata.ManufacturerId = ManufacturerIdBuf;
+	mypdata.Description = DescriptionBuf;
+	mypdata.SerialNumber = SerialNumberBuf;
+	
+	if (!IsOpen()) {
+		OpenByIndex(index);
+	}
+	ft_status = FT_EE_Read(handle, &mypdata);
+
+        if (ft_status != FT_OK) {
+          return 1;
+        }
+
+#ifdef WIN32
+        strncpy_s(SerialNumberBuf, 16, serialNo, 8);
+#elif defined linux || __APPLE__
+        strncpy(SerialNumberBuf, serialNo, 8);
+#endif
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+	ft_status = FT_EE_Program(handle, &mypdata);
+	
 	return ft_status;
 }
 
 void D2XXDevice::DisplayInfo(void) {
-  char *dev_type_str[] = {"232BM", "232AM", "100AX", "UNKNOWN", "2232C", "232R", "2232H", "4232H", "232H"};
+  const char *dev_type_str[] = {"232BM", "232AM", "100AX", "UNKNOWN", "2232C", "232R", "2232H", "4232H", "232H"};
 
   printf("%18s%s\n",      "FT Device type: ", dev_type_str[info.Type]);
   printf("%18s%s\n",      "Serial number: ",  info.SerialNumber);

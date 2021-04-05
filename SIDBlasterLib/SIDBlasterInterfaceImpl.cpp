@@ -12,6 +12,27 @@
 #include "D2XXLib/D2XXDevice.h"
 #include "D2XXLib/D2XXDeviceManager.h"
 
+#if defined linux || defined __APPLE__
+  #include <cstring>
+  #include <stdio.h>
+  #include <stdlib.h>
+
+  typedef int64_t LONGLONG;
+
+  // https://stackoverflow.com/questions/31129200/large-integer-and-byte-types-in-linux 
+  typedef union _LARGE_INTEGER {
+    struct {
+      DWORD LowPart;
+      LONG  HighPart;
+    };
+    struct {
+      DWORD LowPart;
+      LONG  HighPart;
+    } u;
+    LONGLONG QuadPart;
+  } LARGE_INTEGER, *PLARGE_INTEGER;
+#endif
+
 using namespace D2XXLib;
 
 namespace SIDBlaster {
@@ -26,6 +47,7 @@ SIDBlasterInterfaceImpl::SIDBlasterInterfaceImpl(ILogger* logger, int deviceID, 
     buffer[256];
 
   assert(sizeof(LARGE_INTEGER) == sizeof(int64));
+#ifdef WIN32
   memset(buffer, 0, sizeof(buffer));
   if (GetEnvironmentVariableA("SIDBLASTERUSB_WRITEBUFFER_SIZE", buffer, sizeof(buffer)))
   {
@@ -35,6 +57,14 @@ SIDBlasterInterfaceImpl::SIDBlasterInterfaceImpl(ILogger* logger, int deviceID, 
       SetWriteBufferSize(write_buffer_size);
     }
   }
+#elif defined linux || __APPLE__
+  const char* s = getenv("SIDBLASTERUSB_WRITEBUFFER_SIZE");
+  if (s != NULL)
+  {
+    int write_buffer_size = atoi(s);
+    SetWriteBufferSize(write_buffer_size);
+  }
+#endif
 }
 
 SIDBlasterInterfaceImpl::~SIDBlasterInterfaceImpl() {

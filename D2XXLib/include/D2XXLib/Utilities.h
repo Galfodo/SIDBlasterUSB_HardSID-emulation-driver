@@ -6,7 +6,9 @@
 
 namespace D2XXLib
 {
+#ifdef WIN32
   typedef unsigned long DWORD;
+#endif
   typedef void* PVOID;
 
   class Subject;

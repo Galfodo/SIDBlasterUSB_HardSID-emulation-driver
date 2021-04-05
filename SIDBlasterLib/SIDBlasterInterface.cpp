@@ -24,7 +24,7 @@ SIDBlasterInterface::~SIDBlasterInterface() {
 }
 
 void SIDBlasterInterface::SetWriteBufferSize(int size) {
-  m_WriteBufferSize = std::max(MIN_WRITE_BUFFER_SIZE, std::min(size, MAX_WRITE_BUFFER_SIZE));
+  m_WriteBufferSize = std::max(minWriteBufferSize(), std::min(size, maxWriteBufferSize()));
 }
 
 }

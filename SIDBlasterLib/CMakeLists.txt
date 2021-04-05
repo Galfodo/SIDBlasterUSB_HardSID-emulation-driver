@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(SIDBlasterLib)
 
+set(CMAKE_CXX_STANDARD 11)
+
 set(SIDBlasterLib_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/CommandDispatcher.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/CommandDispatcher.h
@@ -15,7 +17,11 @@ set(SIDBlasterLib_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/SIDBlasterInterfaceImpl.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/SIDBlasterInterfaceImpl.h
 )
+
 add_library(SIDBlasterLib STATIC ${SIDBlasterLib_SOURCES})
+
+set_property(TARGET SIDBlasterLib PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 target_include_directories(SIDBlasterLib PUBLIC 
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/../D2XXLib/include

@@ -36,6 +36,7 @@ namespace D2XXLib
 	const char* GetSerialNo(DWORD index);
 	SID_TYPE GetSIDType(DWORD index);
 	int SetSIDType(DWORD index, SID_TYPE sidtype);
+	int SetSerialNo(DWORD index, const char *serialNo);
   };
 
 }

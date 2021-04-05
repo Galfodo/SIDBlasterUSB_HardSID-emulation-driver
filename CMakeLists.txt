@@ -1,9 +1,13 @@
 cmake_minimum_required(VERSION 3.10)
 
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
+
 project(hardsid)
 
 add_subdirectory(D2XXLib)
 add_subdirectory(SIDBlasterLib)
+
+set(CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(FTD2XX REQUIRED)
@@ -27,10 +31,14 @@ if (WIN32)
 		${CMAKE_CURRENT_SOURCE_DIR}/hardsiddll/hardsid.def
 	)
 endif ()
+
 add_library(hardsid SHARED 
 	${hardsid_SOURCES}
 	${hardsid_EXTRA_SOURCES}
 )
+
+set_property(TARGET hardsid PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 target_include_directories(hardsid PUBLIC
   ${FTD2XX_INCLUDE_DIR}
 )
@@ -40,3 +48,12 @@ target_link_libraries(hardsid
   ${FTD2XX_LIBRARY}
   ${hardsid_EXTRA_LIBRARIES}
 )
+
+if (APPLE)
+    add_custom_command(TARGET hardsid 
+        POST_BUILD COMMAND 
+        ${CMAKE_INSTALL_NAME_TOOL} -change libftd2xx.dylib /usr/local/lib/libftd2xx.dylib
+        $<TARGET_FILE:hardsid>)
+endif ()
+
+add_custom_command(TARGET hardsid POST_BUILD COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/hardsiddll/hardsid.hpp ${PROJECT_BINARY_DIR})

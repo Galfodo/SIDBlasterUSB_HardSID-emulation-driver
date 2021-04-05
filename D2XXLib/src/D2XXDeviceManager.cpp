@@ -8,6 +8,10 @@
 #include <assert.h>
 #include <algorithm>
 
+#ifdef linux
+  #include <string.h>
+#endif
+
 namespace D2XXLib
 {
   bool D2XXManager::IsValidDeviceInfo(FT_DEVICE_LIST_INFO_NODE *dev_info)
@@ -180,5 +184,10 @@ namespace D2XXLib
   int D2XXManager::SetSIDType(DWORD index, SID_TYPE sidtype)
   {
 	  return (dev_list.at(index)->SetSIDType(index, sidtype));
+  }
+
+  int D2XXManager::SetSerialNo(DWORD index, const char *serialNo)
+  {
+	  return (dev_list.at(index)->SetSerialNo(index, serialNo));
   }
 }

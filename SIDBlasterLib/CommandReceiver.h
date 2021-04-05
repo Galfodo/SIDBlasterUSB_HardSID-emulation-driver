@@ -4,6 +4,10 @@
 #include "CommandDispatcher.h"
 #include "ILogger.h"
 
+#ifdef __GNUC__
+  #include <stdarg.h>
+#endif
+
 #include <vector>
 #include <chrono>
 
