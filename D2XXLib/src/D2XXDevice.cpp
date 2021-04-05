@@ -194,21 +194,30 @@ SID_TYPE D2XXDevice::GetSIDType(void) {
 
 int D2XXDevice::SetSIDType(DWORD index, SID_TYPE sidtype) {
 	
-	char Manufacturer[64];
-	char ManufacturerId[64];
+	char Manufacturer[32];
+	char ManufacturerId[16];
 	char Description[64];
-	char SerialNumber[64];
+	char SerialNumber[16];
 	
-	FT_EEPROM_HEADER ft_eeprom_header;
-	ft_eeprom_header.deviceType = FT_DEVICE_232R; // FTxxxx device type to be accessed
-	FT_EEPROM_232R ft_eeprom_232R;
-	ft_eeprom_232R.common = ft_eeprom_header;
-	ft_eeprom_232R.common.deviceType = FT_DEVICE_232R;
+	FT_PROGRAM_DATA mypdata;
+	char ManufacturerBuf[32];
+	char ManufacturerIdBuf[16];
+	char DescriptionBuf[64];
+	char SerialNumberBuf[16];
 	
+	mypdata.Signature1 = 0x00000000;
+	mypdata.Signature2 = 0xffffffff;
+	mypdata.Version = 0x00000002;
+
+	mypdata.Manufacturer = ManufacturerBuf;
+	mypdata.ManufacturerId = ManufacturerIdBuf;
+	mypdata.Description = DescriptionBuf;
+	mypdata.SerialNumber = SerialNumberBuf;
+
 	if (!IsOpen()) {
 		OpenByIndex(index);
 	}
-	ft_status = FT_EEPROM_Read(handle, &ft_eeprom_232R, sizeof(ft_eeprom_232R),Manufacturer, ManufacturerId, Description, SerialNumber);
+	ft_status = FT_EE_ReadEx(handle,&mypdata,Manufacturer, ManufacturerId, Description, SerialNumber);
 	switch (sidtype)
 	{
 	case SID_TYPE_NONE:
@@ -224,28 +233,37 @@ int D2XXDevice::SetSIDType(DWORD index, SID_TYPE sidtype) {
 		return 1;
 	}
 
-	ft_status = FT_EEPROM_Program(handle, &ft_eeprom_232R, sizeof(ft_eeprom_232R), Manufacturer, ManufacturerId, Description, SerialNumber);
-		
+	ft_status = FT_EE_ProgramEx(handle, &mypdata, Manufacturer, ManufacturerId, Description, SerialNumber);
+	
 	return ft_status;
 }
 
 int D2XXDevice::SetSerialNo(DWORD index, const char *serialNo) {
 	
-	char Manufacturer[64];
-	char ManufacturerId[64];
+	char Manufacturer[32];
+	char ManufacturerId[16];
 	char Description[64];
-	char SerialNumber[64];
-	
-	FT_EEPROM_HEADER ft_eeprom_header;
-	ft_eeprom_header.deviceType = FT_DEVICE_232R; // FTxxxx device type to be accessed
-	FT_EEPROM_232R ft_eeprom_232R;
-	ft_eeprom_232R.common = ft_eeprom_header;
-	ft_eeprom_232R.common.deviceType = FT_DEVICE_232R;
+	char SerialNumber[16];
+
+	FT_PROGRAM_DATA mypdata;
+	char ManufacturerBuf[32];
+	char ManufacturerIdBuf[16];
+	char DescriptionBuf[64];
+	char SerialNumberBuf[16];
+
+	mypdata.Signature1 = 0x00000000;
+	mypdata.Signature2 = 0xffffffff;
+	mypdata.Version = 0x00000002;
+
+	mypdata.Manufacturer = ManufacturerBuf;
+	mypdata.ManufacturerId = ManufacturerIdBuf;
+	mypdata.Description = DescriptionBuf;
+	mypdata.SerialNumber = SerialNumberBuf;
 	
 	if (!IsOpen()) {
 		OpenByIndex(index);
 	}
-	ft_status = FT_EEPROM_Read(handle, &ft_eeprom_232R, sizeof(ft_eeprom_232R),Manufacturer, ManufacturerId, Description, SerialNumber);
+	ft_status = FT_EE_ReadEx(handle, &mypdata, Manufacturer, ManufacturerId, Description, SerialNumber);
 
 #ifdef WIN32
         strncpy_s(SerialNumber, 64, serialNo, 8);
@@ -253,8 +271,8 @@ int D2XXDevice::SetSerialNo(DWORD index, const char *serialNo) {
         strncpy(SerialNumber, serialNo, 8);
 #endif
 
-	ft_status = FT_EEPROM_Program(handle, &ft_eeprom_232R, sizeof(ft_eeprom_232R), Manufacturer, ManufacturerId, Description, SerialNumber);
-		
+	ft_status = FT_EE_ProgramEx(handle, &mypdata, Manufacturer, ManufacturerId, Description, SerialNumber);
+	
 	return ft_status;
 }
 
