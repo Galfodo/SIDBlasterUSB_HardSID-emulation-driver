@@ -240,6 +240,7 @@ int D2XXDevice::SetSerialNo(DWORD index, const char *serialNo) {
 	char ManufacturerIdBuf[16];
 	char DescriptionBuf[64];
 	char SerialNumberBuf[16];
+        memset(SerialNumberBuf, '\0', 16);
 
 	mypdata.Signature1 = 0x00000000;
 	mypdata.Signature2 = 0xffffffff;
