@@ -221,6 +221,7 @@ extern "C" {
 		strncpy_s(output, bufferSize, (char*)x_Manager->GetSerialNo(DeviceID), 8);
 #elif defined linux || defined __APPLE__
 		strncpy(output, (char*)x_Manager->GetSerialNo(DeviceID), 8);
+                output[bufferSize - 1] = '\0';
 #endif
 	}
 	

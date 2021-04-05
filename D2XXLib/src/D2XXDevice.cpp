@@ -9,6 +9,9 @@
 #include <stdio.h>
 #include <vector>
 #include <assert.h>
+#include <thread>
+#include <chrono>
+
 
 #if defined linux || __APPLE__
   #include <cstring>
@@ -213,6 +216,11 @@ int D2XXDevice::SetSIDType(DWORD index, SID_TYPE sidtype) {
 		OpenByIndex(index);
 	}
 	ft_status = FT_EE_Read(handle,&mypdata);
+
+        if (ft_status != FT_OK) {
+          return 1;
+        }
+
 	switch (sidtype)
 	{
 	case SID_TYPE_NONE:
@@ -227,6 +235,8 @@ int D2XXDevice::SetSIDType(DWORD index, SID_TYPE sidtype) {
 	default:
 		return 1;
 	}
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
 	ft_status = FT_EE_Program(handle, &mypdata);
 	
@@ -256,11 +266,17 @@ int D2XXDevice::SetSerialNo(DWORD index, const char *serialNo) {
 	}
 	ft_status = FT_EE_Read(handle, &mypdata);
 
+        if (ft_status != FT_OK) {
+          return 1;
+        }
+
 #ifdef WIN32
         strncpy_s(SerialNumberBuf, 16, serialNo, 8);
 #elif defined linux || __APPLE__
         strncpy(SerialNumberBuf, serialNo, 8);
 #endif
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
 	ft_status = FT_EE_Program(handle, &mypdata);
 	
