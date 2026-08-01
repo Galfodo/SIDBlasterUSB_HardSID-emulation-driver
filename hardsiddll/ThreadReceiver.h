@@ -9,6 +9,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <thread>
+#include <atomic>
 
 namespace SIDBlaster {
 
@@ -37,11 +38,13 @@ public:
   CommandParams
     m_CommandBuffer[BUFFERSIZE];
 
-  int
+  // Written by the calling (producer) thread, read by the worker (consumer) thread
+  // (and vice versa) without a lock on the hot path - must be atomic to be well-defined.
+  std::atomic<int>
     m_CommandWrite,
     m_CommandRead;
 
-  bool
+  std::atomic<bool>
     m_Flush;
 
   inline void Flush() {
@@ -75,7 +78,7 @@ public:
       m_Flush = false;
       params.m_Command = CommandParams::Flush;
       params.m_Device = 0;
-      m_CommandWrite = m_CommandRead;
+      m_CommandWrite = m_CommandRead.load();
       return true;
     }
     if (CommandsPending()) {

@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <chrono>
+#include <atomic>
 
 namespace SIDBlaster {
 
@@ -50,10 +51,6 @@ public:
 //protected:
   std::vector<SIDBlasterInterface*>
                         m_Devices;
-  enum
-  {
-    TIMING_SAMPLES = 8
-  };
   int64                 CycleFromTimestamp(timestamp_t tick);
   timestamp_t           m_StartTime;
   timestamp_t           m_NextTime;
@@ -63,13 +60,10 @@ public:
 
   int64                 m_AccumulatedCycles;
 
-  bool                  m_AdaptiveWriteBuffer;
-
-  int                   m_TimingSamples[TIMING_SAMPLES];
-  int                   m_TimingSampleIndex;
-
-  bool                  m_IsReadResultReady;
-  int                   m_ReadResult;
+  // Set by the worker thread, polled by the calling thread in SendCommand() -
+  // must be atomic, same reasoning as the ring-buffer indices in ThreadReceiver.h.
+  std::atomic<bool>     m_IsReadResultReady;
+  std::atomic<int>      m_ReadResult;
 };
 
 }

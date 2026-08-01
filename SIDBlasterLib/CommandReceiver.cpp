@@ -21,11 +21,7 @@
 
 namespace SIDBlaster {
 
-CommandReceiver::CommandReceiver() : m_AdaptiveWriteBuffer(false) {
-  for (int i = 0; i < TIMING_SAMPLES; ++i) {
-    m_TimingSamples[i] = 0;
-  }
-  m_TimingSampleIndex = 0;
+CommandReceiver::CommandReceiver() {
 }
 
 CommandReceiver::~CommandReceiver() {
@@ -109,31 +105,15 @@ CommandReceiver::ExecuteCommand(CommandParams const& command) {
   if (m_Devices.empty()) {
     return 0;
   }
-  bool buffer_writes = m_Devices[0]->WriteBufferSize() > 0 || m_AdaptiveWriteBuffer;
+  bool buffer_writes = m_Devices[0]->WriteBufferSize() > 0;
   int retval = 0;
   int waited_cycles = 0;
   if (command.m_Cycle > 0) {
     waited_cycles = WaitForCycle(command.m_Cycle);
   }
-  m_TimingSamples[m_TimingSampleIndex] = waited_cycles;
-  m_TimingSampleIndex = (m_TimingSampleIndex + 1) % TIMING_SAMPLES;
-  //Log("Waited cycles: %d, buffer size: %d\n", waited_cycles, m_SIDBlaster->WriteBufferSize());
   if (waited_cycles < 0) {
     buffer_writes = true;
   }
-  int sum = 0;
-  if (m_AdaptiveWriteBuffer) {
-    for (int i = 0; i < TIMING_SAMPLES; ++i) {
-      sum += m_TimingSamples[i];
-    }
-    int avg = sum / TIMING_SAMPLES;
-    if (avg < -10000) {
-      for (int i = 0; i < (int)m_Devices.size(); ++i) {
-        m_Devices[i]->SetWriteBufferSize(m_Devices[i]->WriteBufferSize() + 1);
-      }
-    }
-  }
-  //LogTimestamp();
   if (command.m_Device >= 0 && command.m_Device < (int)m_Devices.size()) {
     SIDBlasterInterface* sidblaster = m_Devices.at(command.m_Device);
     switch(command.m_Command) {
@@ -157,9 +137,6 @@ CommandReceiver::ExecuteCommand(CommandParams const& command) {
       {
         byte data = 0;
         retval = sidblaster->Read(command.m_Reg, data) | ((int)data << 8);
-        if (data != 0) {
-          int debug = 0;
-        }
         m_ReadResult = retval;
         m_IsReadResultReady = true;
       }
@@ -185,9 +162,9 @@ CommandReceiver::ExecuteCommand(CommandParams const& command) {
       sidblaster->Reset();
       ResetTimer();
       break;
-    //case CommandParams::MuteLine: // What does this do?
-    //  break;
-    case CommandParams::Filter: // What does this do?
+    case CommandParams::MuteLine: // not implemented by SIDBlasterInterface yet
+      break;
+    case CommandParams::Filter: // not implemented by SIDBlasterInterface yet
       break;
     case CommandParams::Lock: // Should ensure no other applications can obtain a sidblaster device
       break;

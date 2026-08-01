@@ -12,6 +12,9 @@
 #include "D2XXLib/D2XXDevice.h"
 #include "D2XXLib/D2XXDeviceManager.h"
 
+#include <chrono>
+#include <thread>
+
 #if defined linux || defined __APPLE__
   #include <cstring>
   #include <stdio.h>
@@ -116,8 +119,17 @@ SIDBlasterInterfaceImpl::Read(byte reg, byte& data) {
     reg |= 0xa0;
     m_SID->Send(&reg, 1);
     std::vector<byte> rxqueue;
-    do {
-    } while (m_SID->Recv(rxqueue) == 0);
+    // Recv() only polls the queue and returns immediately if nothing's pending yet -
+    // it does NOT block for FT_READ_TIMEOUT like Read() does. Without a deadline here
+    // this spins at 100% CPU forever if the hardware never answers (unplugged mid-read,
+    // firmware hang, ...).
+    auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000);
+    while (m_SID->Recv(rxqueue) == 0) {
+      if (std::chrono::steady_clock::now() >= deadline) {
+        return 0;
+      }
+      std::this_thread::yield();
+    }
     if (!rxqueue.empty()) {
       data = rxqueue.back();
     }

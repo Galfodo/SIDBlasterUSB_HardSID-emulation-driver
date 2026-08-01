@@ -71,3 +71,11 @@ void WINAPI HardSID_Mute2      (BYTE deviceID, BYTE channel, BOOL mute, BOOL man
 // DLLs above version 0x207
 // Enable support for non hardsid hardware (e.g. Catweasel MK3/4)
 void WINAPI HardSID_OtherHardware (void);
+
+// DLLs from version 0x0204 (this fork's bug-fix cleanup pass, see the
+// fork's README section) - no new exports, but ThreadDispatcher/
+// CommandReceiver no longer busy-spin internally. Host software that
+// relied on constant "keep-alive" writes to compensate for that (e.g.
+// SIDWriteThread's old do-nothing-write-when-idle pattern) can drop the
+// workaround, but should check HardSID_Version() >= 0x0204 first rather
+// than assume - older DLLs still need it.

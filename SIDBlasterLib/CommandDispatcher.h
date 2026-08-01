@@ -20,11 +20,14 @@ struct CommandParams
     SoftFlush,
     Lock,
     MuteLine,
-    Filter = MuteLine,
     Unlock,
     OpenDevice,
     CloseDevice,
     NOP,
+    // Appended at the end (rather than reusing MuteLine's old ordinal) so the
+    // existing command IDs above keep their values - MuteLine and Filter used
+    // to alias the same ID, which silently made Filter unreachable.
+    Filter,
     MaxCommand
   } m_Command;
   int   m_Device;
