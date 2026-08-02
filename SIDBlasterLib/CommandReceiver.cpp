@@ -17,6 +17,7 @@
 
 #include <cassert>
 #include <chrono>
+#include <cstdio>
 #include <thread>
 
 namespace SIDBlaster {

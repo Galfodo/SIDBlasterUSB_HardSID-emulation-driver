@@ -13,6 +13,7 @@
 #include "SIDBlasterInterfaceImpl.h"
 
 #include <cassert>
+#include <cstdio>
 #include <vector>
 
 namespace SIDBlaster {
