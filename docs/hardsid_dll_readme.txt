@@ -73,9 +73,10 @@ void WINAPI HardSID_Mute2      (BYTE deviceID, BYTE channel, BOOL mute, BOOL man
 void WINAPI HardSID_OtherHardware (void);
 
 // DLLs from version 0x0204 (this fork's bug-fix cleanup pass, see the
-// fork's README section) - no new exports, but ThreadDispatcher/
-// CommandReceiver no longer busy-spin internally. Host software that
-// relied on constant "keep-alive" writes to compensate for that (e.g.
-// SIDWriteThread's old do-nothing-write-when-idle pattern) can drop the
-// workaround, but should check HardSID_Version() >= 0x0204 first rather
-// than assume - older DLLs still need it.
+// fork's README section) - no new exports, and no change to whether
+// host software needs "keep-alive" writes while idle. That pattern
+// exists for a different reason than the busy-spin fix (HardSID_Write's
+// cycles argument is a small fixed value per call, so playback timing
+// accuracy comes from call frequency, not driver dispatch latency) -
+// keep it regardless of driver version. Investigated directly; do not
+// remove based on this version number.

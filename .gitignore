@@ -14,6 +14,7 @@
 
 # Build results
 build/
+build32/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
@@ -24,6 +25,14 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+
+# Installer packaging (Inno Setup / debian / macOS Packages project)
+# lives in a private crazy-midi.de repo, not here - keep it out even if
+# it gets recreated locally by mistake.
+installer/
+
+# Plain-binary release archives (see the Releases page), staged locally
+release-staging/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/

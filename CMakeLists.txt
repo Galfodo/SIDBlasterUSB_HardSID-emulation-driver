@@ -4,9 +4,10 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment ver
 # Universal binary (Intel + Apple Silicon) - CMake automatically raises the
 # effective minimum for the arm64 slice to whatever macOS actually requires
 # for that architecture (11.0+), CMAKE_OSX_DEPLOYMENT_TARGET above only
-# constrains the x86_64 slice. Not verified on real Mac hardware - AIASS/
-# ASID Player's Linux/Mac paths are all "written to the best of my
-# knowledge, untested" per the same caveat as the rest of this pass.
+# constrains the x86_64 slice. x86_64 slice verified on real Mac hardware
+# via real SIDBlaster-USB playback; arm64 slice compiles cleanly but is
+# only build-tested so far (built from an Intel VM, no Apple Silicon
+# hardware available yet).
 set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build a universal binary on macOS")
 
 project(hardsid)

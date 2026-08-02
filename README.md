@@ -48,12 +48,11 @@ from-scratch firmware + driver stack built on the exSID protocol. This
 driver stays as-is for existing SIDBlaster-USB hardware that isn't
 reflashed to NG.
 
-**Linux/macOS CMake, tightened but not test-built here** (no toolchain
-in this environment - written to the best of my knowledge, real
-verification happens on Andreas's machines): all the fixes above are
-plain C++11 standard library (`std::mutex`/`condition_variable`/
-`chrono`/`atomic`), nothing Windows-specific, so they carry over as-is -
-this was purely a CMake pass. Added `install(TARGETS hardsid LIBRARY
+**Linux/macOS CMake, built and verified on real hardware.** All the
+fixes above are plain C++11 standard library (`std::mutex`/
+`condition_variable`/`chrono`/`atomic`), nothing Windows-specific, so
+they carry over as-is - this was originally a CMake-only pass, since
+verified by actually building it: `install(TARGETS hardsid LIBRARY
 DESTINATION /usr/local/lib)` (matches where AIASS/ASID Player's
 Linux/Mac paths already expect to find it - see their `Sid.cpp`) and
 `CMAKE_OSX_ARCHITECTURES "x86_64;arm64"` for a universal macOS binary
@@ -61,6 +60,35 @@ Linux/Mac paths already expect to find it - see their `Sid.cpp`) and
 automatically - `CMAKE_OSX_DEPLOYMENT_TARGET` above only constrains the
 x86_64 slice). `FindFTD2XX.cmake` and the D2XXLib linux/`__APPLE__`
 branches were already in place from Ken's original port - untouched.
+Built cleanly on Ubuntu 24.04 and macOS 12.7 (`libhardsid.so` /
+universal `libhardsid.dylib`, x86_64+arm64), and played real SID tunes
+on real SIDBlaster-USB hardware on both, passed through the same
+physical device one VM at a time - confirmed by ear equal to Windows,
+no quality regression. The arm64 slice of the macOS build compiles
+cleanly but hasn't been runtime-tested on actual Apple Silicon yet
+(only from an Intel VM so far).
+
+**Downloads: see the [Releases](https://github.com/gh0stless/SIDBlasterUSB_HardSID-emulation-driver/releases) page.**
+GitHub Releases ship plain binaries carrying the fixes above - no
+installer, just the library plus what it needs:
+
+* **Windows** - `hardsid-x64.dll` / `hardsid-x86.dll`. Drop the matching
+  one next to your player's .exe, or into `System32` (64-bit hosts) /
+  `SysWOW64` (32-bit hosts, e.g. SIDPlay2, older ACID64/VICE builds) for
+  system-wide use. The old driver program that came with the device
+  (`SIDBlaster.exe`) must still be disabled for this to work.
+* **Linux** - `libhardsid.so` + bundled FTDI D2XX runtime. Copy to
+  `/usr/local/lib`, `ldconfig`, and add a udev rule detaching the
+  kernel's `ftdi_sio`/`usbserial` VCP driver on attach - without that
+  rule the device shows up as a serial port instead, and D2XX/libhardsid
+  can't open it. That's the D2XX-vs-VCP conflict that makes
+  SIDBlaster-USB "a bit tricky" on Linux.
+* **macOS** - universal (Intel + Apple Silicon) `libhardsid.dylib` +
+  bundled FTDI D2XX runtime. Copy to `/usr/local/lib`.
+
+Prefer a proper installer that handles all of the above for you (System32/
+SysWOW64 placement on Windows, the udev rule on Linux, the D2XX symlink
+on macOS)? Get one from **[crazy-midi.de](https://crazy-midi.de)**.
 
 Writing host software against this DLL? See
 [`docs/integrators_guide.md`](docs/integrators_guide.md) - covers the
