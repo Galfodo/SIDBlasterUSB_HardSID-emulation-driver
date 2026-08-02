@@ -90,6 +90,35 @@ Prefer a proper installer that handles all of the above for you (System32/
 SysWOW64 placement on Windows, the udev rule on Linux, the D2XX symlink
 on macOS)? Get one from **[crazy-midi.de](https://crazy-midi.de)**.
 
+**Prerequisite: the FTDI D2XX driver itself.** `hardsid.dll`/`libhardsid`
+talks to the SIDBlaster-USB through FTDI's D2XX library, which is a
+separate install from everything above and the actual "tricky" part on
+Linux/macOS (documented in more detail in the
+[AIASS-Uno-VST manual](https://github.com/gh0stless/AIASS-Uno-VST)):
+
+* **Windows** - usually arrives via Windows Update (Settings / Windows
+  Update / Optional Updates) the first time the device is plugged in.
+  That handshake needs an active internet connection and fails under a
+  "Metered Connection" - temporarily disable that if the device isn't
+  being recognized. Older Windows versions may need the driver from
+  [ftdichip.com/drivers/d2xx-drivers](https://ftdichip.com/drivers/d2xx-drivers/).
+* **Linux** - download and install from
+  [ftdichip.com/drivers/d2xx-drivers](https://ftdichip.com/drivers/d2xx-drivers/)
+  per FTDI's
+  [AN_220 installation guide](https://www.ftdichip.com/Support/Documents/AppNotes/AN_220_FTDI_Drivers_Installation_Guide_for_Linux.pdf).
+  If the device still isn't usable afterwards, that's the D2XX-vs-VCP
+  conflict mentioned above - the udev rule fixes it.
+* **macOS** - download and install from the same
+  [ftdichip.com/drivers/d2xx-drivers](https://ftdichip.com/drivers/d2xx-drivers/)
+  page per FTDI's
+  [AN_134 installation guide](https://ftdichip.com/wp-content/uploads/2020/08/AN_134_FTDI_Drivers_Installation_Guide_for_MAC_OSX-1.pdf),
+  and also install D2XXHelper from the same page. Gatekeeper may then
+  refuse to run unsigned/non-notarized binaries built against it - if
+  so, either `sudo xattr -rd com.apple.quarantine /path/to/your.app`
+  (removes the quarantine flag from just that app) or, as a blunter
+  last resort, `sudo spctl --master-disable` (turns off Gatekeeper's
+  developer-verification check entirely).
+
 Writing host software against this DLL? See
 [`docs/integrators_guide.md`](docs/integrators_guide.md) - covers the
 POSIX `HardSID_Uninitialize()` requirement, the `Cycles`-is-a-relative-
