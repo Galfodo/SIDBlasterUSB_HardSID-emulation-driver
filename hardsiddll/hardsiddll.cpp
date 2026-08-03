@@ -31,7 +31,12 @@ using namespace SIDBlaster;
   #define DLLEXPORT __declspec(dllexport) __stdcall
 #endif
 
-#define HARDSID_VERSION      0x0203
+// Bumped from 0x0203 to 0x0204 for this fork's bug-fix cleanup pass
+// (ThreadDispatcher/CommandReceiver busy-spin fixes, see README) - host
+// software that depends on those fixes (e.g. a SIDWriteThread without
+// the keep-alive-write workaround) can check HardSID_Version() >= this
+// to refuse running against an older, unfixed DLL.
+#define HARDSID_VERSION      0x0204
 
 typedef unsigned char Uint8;
 typedef unsigned short Uint16;

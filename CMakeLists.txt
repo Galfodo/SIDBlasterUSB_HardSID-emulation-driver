@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
+# Universal binary (Intel + Apple Silicon) - CMake automatically raises the
+# effective minimum for the arm64 slice to whatever macOS actually requires
+# for that architecture (11.0+), CMAKE_OSX_DEPLOYMENT_TARGET above only
+# constrains the x86_64 slice. x86_64 slice verified on real Mac hardware
+# via real SIDBlaster-USB playback; arm64 slice compiles cleanly but is
+# only build-tested so far (built from an Intel VM, no Apple Silicon
+# hardware available yet).
+set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build a universal binary on macOS")
 
 project(hardsid)
 
@@ -57,3 +65,13 @@ if (APPLE)
 endif ()
 
 add_custom_command(TARGET hardsid POST_BUILD COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/hardsiddll/hardsid.hpp ${PROJECT_BINARY_DIR})
+
+if (NOT WIN32)
+	# AIASS/ASID Player's Linux/Mac paths both hardcode
+	# /usr/local/lib/libhardsid.so|.dylib (see their Sid.cpp), so install
+	# there explicitly rather than relying on CMAKE_INSTALL_PREFIX
+	# defaulting to the same place - makes `cmake --install build` (as
+	# root/sudo, or with a prefix override) do the right thing regardless
+	# of how the prefix is configured.
+	install(TARGETS hardsid LIBRARY DESTINATION /usr/local/lib)
+endif ()

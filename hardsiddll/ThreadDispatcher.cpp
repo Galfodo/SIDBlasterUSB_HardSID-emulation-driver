@@ -13,6 +13,7 @@
 #include "SIDBlasterInterfaceImpl.h"
 
 #include <cassert>
+#include <cstdio>
 #include <vector>
 
 namespace SIDBlaster {
@@ -27,13 +28,17 @@ ThreadFunction(ThreadCommandReceiver* receiver, bool* do_abort) {
     receiver->ExecuteCommand(opencommand);
   }
   while (!*do_abort) {
-#ifdef USE_COMMAND_PENDING_EVENT
     {
+      // Sleep until a command is queued instead of busy-polling CommandsPending() -
+      // the old busy-spin loop pinned a full CPU core for the lifetime of the DLL.
+      // wait_for (with a short timeout as a safety net) rather than a bare wait()
+      // avoids a lost-wakeup hang if a notify races ahead of us reaching this wait.
       std::unique_lock<std::mutex>
         lockGuard(receiver->m_CommandPendingMutex);
-      receiver->m_CommandPendingEvent.wait(lockGuard); 
+      receiver->m_CommandPendingEvent.wait_for(lockGuard, std::chrono::milliseconds(2), [&]() {
+        return receiver->CommandsPending() || *do_abort;
+      });
     }
-#endif
     while (receiver->CommandsPending()) {
       CommandParams command(0, CommandParams::NOP);
       if (receiver->TryGetCommand(command)) {
@@ -74,9 +79,7 @@ ThreadDispatcher::SendCommand(CommandParams const& cmd) {
     }
     if (cmd.m_Command == CommandParams::Flush) {
       m_Receiver->Flush();
-#ifdef USE_COMMAND_PENDING_EVENT
       m_Receiver->m_CommandPendingEvent.notify_all();
-#endif
       while (m_Receiver->m_CommandRead != m_Receiver->m_CommandWrite) {
         std::this_thread::yield();
       }
@@ -84,25 +87,28 @@ ThreadDispatcher::SendCommand(CommandParams const& cmd) {
     }
     assert(!m_Receiver->IsReadResultReady());
     if (!m_Receiver->TryPutCommand(cmd)) {
-#ifdef USE_COMMAND_PENDING_EVENT
       m_Receiver->m_CommandPendingEvent.notify_all();
-#endif
       return -1;
     }
     switch (cmd.m_Command)
     {
     case CommandParams::Write:
-#ifdef USE_COMMAND_PENDING_EVENT
-      if (!cmd.m_IsBuffered) {
-        m_Receiver->m_CommandPendingEvent.notify_all();
-      }
-#endif
+      // Always notify, regardless of m_IsBuffered. That flag only means
+      // "batch the USB transfer" (see CommandReceiver::ExecuteCommand's
+      // buffer_writes/BufferWrite) - it says nothing about whether the
+      // dispatcher thread should be woken. Skipping notify here was safe
+      // back when the dispatcher busy-spun and picked up buffered commands
+      // within a fraction of a millisecond regardless; now that it sleeps
+      // (see ThreadDispatcher.cpp's wait_for), skipping notify meant every
+      // batch of buffered writes - which is what HardSID_Try_Write always
+      // sends, see hardsiddll.cpp - waited for the 2ms fallback poll
+      // instead of dispatching immediately. At SID-register-write timing
+      // precision, a consistent 2ms-per-batch stall is audible stuttering.
+      m_Receiver->m_CommandPendingEvent.notify_all();
       break;
     case CommandParams::Read:
       // BLOCKING! Should be re-engineered to allow an async interface
-#ifdef USE_COMMAND_PENDING_EVENT
       m_Receiver->m_CommandPendingEvent.notify_all();
-#endif
       // Block until read result available
       while (!m_Receiver->IsReadResultReady()) {
         std::this_thread::yield();
@@ -111,9 +117,7 @@ ThreadDispatcher::SendCommand(CommandParams const& cmd) {
       assert(!m_Receiver->IsReadResultReady());
       break;
     default:
-#ifdef USE_COMMAND_PENDING_EVENT
       m_Receiver->m_CommandPendingEvent.notify_all();
-#endif
       break;
     }
   }

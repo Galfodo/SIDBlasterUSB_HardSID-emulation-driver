@@ -13,7 +13,4 @@
 // Use multithreaded interface
 #define USE_ASYNC_INTERFACE
 
-// Use event to signal commands pending
-//#define USE_COMMAND_PENDING_EVENT
-
 #endif

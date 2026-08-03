@@ -17,10 +17,12 @@ public:
   virtual void          Initialize() SIDB_OVERRIDE;
   virtual void          Uninitialize() SIDB_OVERRIDE;
   virtual int           DeviceCount() SIDB_OVERRIDE;
+  virtual void          SetWriteBufferSize(int bufferSize) SIDB_OVERRIDE;
   virtual void          Log(const char* format, ...) SIDB_OVERRIDE;
 private:
   std::vector<SIDBlasterInterface*>
                         m_SIDBlasters;
+  int                   m_bufferSize;
 };
 
 }
